@@ -40,7 +40,7 @@ class ScatteredButton(Scatter):
 			print 'do no push me, scale me!!'
 		item.bind(on_release=alarm)
 		#self.add_widget(item)
-		self.add_widget(Image(source='dome.jpg'))
+		self.add_widget(Image(source='img/dome.jpg'))
 	"""
 	def on_touch_down(self, touch):
 		super(ScatteredButton, self).on_touch_down(touch)
@@ -77,7 +77,7 @@ class TouchtracerApp(App):
 
 		# trying scatter 
 		picture = Scatter(do_rotation=False, do_scale=True, do_translation_y=False, rotation=0)
-		picture.add_widget(Image(source='dome.jpg'))
+		picture.add_widget(Image(source='img/dome.jpg'))
 		root.add_widget(picture)
 
 		# trying nested objects
