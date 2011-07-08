@@ -8,9 +8,12 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.scatter import Scatter
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 from kivy.uix.slider import Slider
 from kivy.uix.image import Image
+
+from kivy.animation import Animation
 
 from kivy.properties import StringProperty
 
@@ -29,30 +32,10 @@ class MyWidget(Widget):
 			touch.ud['whatever'].points += [touch.x, touch.y, touch.y, touch.x]
 
 	def on_touch_up(self, touch):
-		with self.canvas:
-			Color (0,0,1)
-			Ellipse(pos=(touch.x-5, touch.y-5), size=(10, 10))
-
-class ScatteredButton(Scatter):
-	def construct(self):
-		item = Button(text='Scale me')
-		def alarm(obj):
-			print 'do no push me, scale me!!'
-		item.bind(on_release=alarm)
-		#self.add_widget(item)
-		self.add_widget(Image(source='img/dome.jpg'))
-	"""
-	def on_touch_down(self, touch):
-		super(ScatteredButton, self).on_touch_down(touch)
-		print 'touched'
-		for child in self.children[:]:
-			child.dispatch('on_touch_down', touch)
-
-	def on_touch_up(self, touch):
-		super(ScatteredButton, self).on_touch_up(touch)
-		for child in self.children[:]:
-			child.dispatch('on_touch_up', touch)
-	"""
+		if 'whatever' in touch.ud:
+			with self.canvas:
+				Color (0,0,1)
+				Ellipse(pos=(touch.x-5, touch.y-5), size=(10, 10))
 
 class TouchtracerApp(App):
 	def build(self):
@@ -81,9 +64,15 @@ class TouchtracerApp(App):
 		root.add_widget(picture)
 
 		# trying nested objects
-		container = ScatteredButton(pos=(200,300))
-		container.construct()
-		root.add_widget(container)
+		window = Scatter(pos=(200,200), size=(300,300))
+		layout = BoxLayout(pos=(50, 50), size=(200,200))
+		btn1 = Button(text='Hello')
+		btn2 = Button(text='World')
+		layout.add_widget(btn1)
+		layout.add_widget(btn2)
+		window.add_widget(Image(source='img/background.jpg', size=(300,300)))
+		window.add_widget(layout)
+		root.add_widget(window)
 
 		return root
 
