@@ -22,11 +22,11 @@ class MyWidget(Widget):
 			Color (1,0,0)
 			Ellipse(pos=(touch.x-5, touch.y-5), size=(10, 10))
 			Color (*(random(),random(),random()))
-			touch.ud['harchi'] = Line(points=(touch.x, touch.y, touch.y, touch.x))
+			touch.ud['whatever'] = Line(points=(touch.x, touch.y, touch.y, touch.x))
 
 	def on_touch_move(self, touch):
-		if 'harchi' in touch.ud:
-			touch.ud['harchi'].points += [touch.x, touch.y, touch.y, touch.x]
+		if 'whatever' in touch.ud:
+			touch.ud['whatever'].points += [touch.x, touch.y, touch.y, touch.x]
 
 	def on_touch_up(self, touch):
 		with self.canvas:
@@ -40,7 +40,7 @@ class ScatteredButton(Scatter):
 			print 'do no push me, scale me!!'
 		item.bind(on_release=alarm)
 		#self.add_widget(item)
-		self.add_widget(Image(source='dome.jpg'))
+		self.add_widget(Image(source='img/dome.jpg'))
 	"""
 	def on_touch_down(self, touch):
 		super(ScatteredButton, self).on_touch_down(touch)
@@ -77,7 +77,7 @@ class TouchtracerApp(App):
 
 		# trying scatter 
 		picture = Scatter(do_rotation=False, do_scale=True, do_translation_y=False, rotation=0)
-		picture.add_widget(Image(source='dome.jpg'))
+		picture.add_widget(Image(source='img/dome.jpg'))
 		root.add_widget(picture)
 
 		# trying nested objects
