@@ -61,7 +61,7 @@ class MyWidget(Widget):
 class Window(Scatter):
 	def __init__(self):
 		Scatter.__init__(self, pos=(200,200), size=(300,300))
-		layout = BoxLayout(pos=(50, 50), size=(200, 200))
+		layout = BoxLayout(pos=(50, 50), size=(200,200))
 		btn1 = Button(text='Hello')
 		btn2 = Button(text='World')
 		layout.add_widget(btn1)
@@ -70,25 +70,44 @@ class Window(Scatter):
 		self.add_widget(layout)
 
 class Workspace(ScrollView):
+	initial_y = None
+
 	def __init__(self):
-		ScrollView.__init__(self, size_hint=(None, None), size=(400, 400), pos=(500, 0))
-		layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+		ScrollView.__init__(self, size_hint=(None, None), size=(1000, 1000), pos=(0, 0))
+		layout = GridLayout(cols=1, spacing=0, size_hint_y=None)
 		for i in range(30):
-			btn = Button(text=str(i), size_hint_y=None, height=40)
+			btn = Button(text=str(i), size_hint_y=None, height=200)
 			layout.add_widget(btn)
 		self.add_widget(layout)
+	
+	def on_touch_down(self, touch):
+		ScrollView.on_touch_down (self, touch)
+		self.initial_y = self.scroll_y
+
+	def on_touch_up(self, touch):
+		ScrollView.on_touch_up (self, touch)
+		if self.initial_y == None:
+			return
+		scroll_y = self.scroll_y
+		level_y = int(scroll_y*10)
+		level_y = level_y / 10.
+		#print scroll_y, level_y, 
+		if scroll_y <= self.initial_y:
+			if level_y < 0:
+				level_y = 0
+		else:
+			level_y = level_y + 0.1
+			if level_y > 1:
+				level_y = 1
+		#print level_y
+		adjust = Animation(scroll_y = level_y, duration=0.3)
+		adjust.start(self)
+		self.initial_y = None
+		return True
 
 class TouchtracerApp(App):
 	def build(self):
 		root = Widget()
-
-		# trying custom widget
-		painter = MyWidget()
-		root.add_widget(painter)
-
-		# trying nested objects
-		window = Window()
-		# root.add_widget(window)
 
 		# trying workspace idea
 		workspace = Workspace()
