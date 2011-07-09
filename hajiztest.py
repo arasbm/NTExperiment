@@ -91,7 +91,6 @@ class Workspace(ScrollView):
 		scroll_y = self.scroll_y
 		level_y = int(scroll_y*10)
 		level_y = level_y / 10.
-		#print scroll_y, level_y, 
 		if scroll_y <= self.initial_y:
 			if level_y < 0:
 				level_y = 0
@@ -99,7 +98,6 @@ class Workspace(ScrollView):
 			level_y = level_y + 0.1
 			if level_y > 1:
 				level_y = 1
-		#print level_y
 		adjust = Animation(scroll_y = level_y, duration=0.3)
 		adjust.start(self)
 		self.initial_y = None
