@@ -60,14 +60,22 @@ class Workspace(Scatter):
 	# color of background
 	background = Color(0.8,0.8,0.8)
 
+	# returns a random value for size
+	def random_size(self):
+		return 10+30*random()
+
+	# returns a random value with limit, considering margin
+	def random_value(self,limit):
+		return 2*self.margin + random() * (limit - 4*self.margin)
+
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		self.my_object = Object(x=self.width*random(), y=self.height*random(), size=10+30*random())
+		self.my_object = Object(x=self.random_value(self.width), y=self.random_value(self.height), size=self.random_size())
 		self.add_widget(self.my_object)
 
 	# function to create a random target for object
 	def create_random_target(self):
-		self.my_target = Target(x=self.width*random(), y=self.height*random(), size=10+30*random())
+		self.my_target = Target(x=self.random_value(self.width), y=self.random_value(self.height), size=self.random_size())
 		self.add_widget(self.my_target)
 
 	def __init__(self, width, height, scroll = False):
