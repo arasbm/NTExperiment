@@ -70,17 +70,22 @@ class Workspace(Scatter):
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		self.my_object = Object(x=self.random_value(self.width), y=self.random_value(self.height), size=self.random_size())
+		x=self.random_value(self.width)
+		y=self.random_value(self.height)
+		self.my_object = Object(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_object)
 
 	# function to create a random target for object
 	def create_random_target(self):
-		self.my_target = Target(x=self.random_value(self.width), y=self.random_value(self.height), size=self.random_size())
+		x=self.random_value(self.width)
+		y=self.random_value(self.height)
+		self.my_target = Target(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_target)
 
 	def __init__(self, width, height, scroll = False):
 		Scatter.__init__(self, size=(width, height), size_hint_x=None)
 		self.width, self.height, self.scroll = width, height, scroll
+		# drawing a frame inside workspace
 		self.canvas.add(self.background)
 		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(width-2*self.margin, height-2*self.margin)))
 		# for now all workspaces will have object and target in them
