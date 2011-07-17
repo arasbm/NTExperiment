@@ -33,10 +33,22 @@ target_color = Color(0,0,1)
 
 # stands for an object that can be dragged or moved to target
 class Object(Widget):
+	initial_x, initial_y = None, None
 	def __init__(self, x, y, size):
-		Widget.__init__(self, pos=(x,y), size=(size, size))	
+		Widget.__init__(self, pos=(x,y), size=(size, size))
+		self.initial_x, self.initial_y = x, y
+		self.draw()
+
+	def relocate(self, x, y):
+		size = self.width
+		self.x = x - size / 2
+		self.y = y - size / 2
+		self.draw()
+
+	def draw(self):
+		self.canvas.clear()
 		self.canvas.add(object_color)
-		self.canvas.add(Ellipse(pos=(x,y), size=(size, size)))
+		self.canvas.add(Ellipse(pos=(self.x,self.y), size=(self.width, self.height)))
 
 	def on_touch_down(self, touch):
 		print 'object touched'
@@ -61,6 +73,8 @@ class Workspace(Scatter):
 	margin = 10
 	# color of background
 	background = Color(0.8,0.8,0.8)
+	# state of the object in this workspace
+	object_moving = False
 
 	# returns a random value for size
 	def random_size(self):
@@ -100,6 +114,7 @@ class Workspace(Scatter):
 		# by returning True
 		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_object.dispatch('on_touch_down', touch)
+			self.object_moving = True
 			return True
 		# if panning is explicitly disabled (mostly happens when we have only one workspace)
 		# return True anyway, so container won't be panned
@@ -107,8 +122,13 @@ class Workspace(Scatter):
 			return True
 		return False
 
+	def on_touch_move (self, touch):
+		if self.object_moving:
+			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+
 	def on_touch_up (self, touch):
 		# if touch lefts from a target trigger that target
+		self.object_moving = False
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
@@ -144,7 +164,6 @@ class Container(Scatter):
 
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
-		# TODO prevent from sliding when object is moved
 		Scatter.on_touch_up(self, touch)
 		if self.initial_x == None:
 			return
@@ -172,7 +191,7 @@ class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=4))
+		root.add_widget(Container(ws_count=3))
 		return root
 
 if __name__ in ('__main__', '__android__'):
