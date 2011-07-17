@@ -15,6 +15,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.image import Image
 
+from kivy.animation import Animation
+
 from kivy.graphics import Color, Ellipse, Rectangle
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -66,7 +68,7 @@ class Workspace(Scatter):
 
 	# returns a random value with limit, considering margin
 	def random_value(self,limit):
-		return 2*self.margin + random() * (limit - 4*self.margin)
+		return 4*self.margin + random() * (limit - 8*self.margin)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
@@ -103,15 +105,20 @@ class Workspace(Scatter):
 		# return True anyway, so container won't be panned
 		if not self.scroll:
 			return True
+		return False
 
 	def on_touch_up (self, touch):
 		# if touch lefts from a target trigger that target
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
+			return True
+		return False
 
 # stands for a set of workspaces
 class Container(Scatter):
 	frames = None
+	initial_x = None
+	anim_duration = 0.2
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -129,15 +136,36 @@ class Container(Scatter):
 		self.add_widget(layout)
 	
 	def on_touch_down (self, touch):
-		# for now just calls same function in it's ancestor
-		# TODO add slipping when half-panned
+		# calls same function in it's ancestor
+		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
+		self.initial_x = touch.x
+
+	def on_touch_up (self, touch):
+		# calls same function in it's ancestor, and slides the workspace
+		# TODO prevent from sliding when object is moved
+		Scatter.on_touch_up(self, touch)
+		if self.initial_x == None:
+			return
+		single_width = self.width / len(self.frames)
+		current = int(-1 * self.x / single_width)
+		if (-1*self.x) % single_width == 0:
+			return True
+		if self.initial_x > touch.x:
+			current = current + 1
+			if current >= len(self.frames):
+				current = len(self.frames) - 1
+		else:
+			current = current
+		anim = Animation (x = -1 * current * single_width, duration=self.anim_duration)
+		anim.start(self)
+		self.initial_x = None
 
 class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=2))
+		root.add_widget(Container(ws_count=4))
 		return root
 
 if __name__ in ('__main__', '__android__'):
