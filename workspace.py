@@ -119,6 +119,7 @@ class Container(Scatter):
 	frames = None
 	initial_x = None
 	anim_duration = 0.2
+	slide_threshold = 200
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -148,15 +149,21 @@ class Container(Scatter):
 		if self.initial_x == None:
 			return
 		single_width = self.width / len(self.frames)
-		current = int(-1 * self.x / single_width)
-		if (-1*self.x) % single_width == 0:
-			return True
-		if self.initial_x > touch.x:
-			current = current + 1
-			if current >= len(self.frames):
-				current = len(self.frames) - 1
+		if self.x > 0:
+			current = 0
 		else:
-			current = current
+			current = int(-1 * self.x / single_width)
+			if (-1*self.x) % single_width == 0:
+				return True
+			if self.initial_x > touch.x:
+				if abs(self.initial_x - touch.x) > self.slide_threshold:
+					current = current + 1
+				if current >= len(self.frames):
+					current = len(self.frames) - 1
+			else:
+				current = current
+				if abs(self.initial_x - touch.x) < self.slide_threshold:
+					current = current + 1
 		anim = Animation (x = -1 * current * single_width, duration=self.anim_duration)
 		anim.start(self)
 		self.initial_x = None
