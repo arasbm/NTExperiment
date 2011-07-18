@@ -34,6 +34,8 @@ target_color = Color(0,0,1)
 # stands for an object that can be dragged or moved to target
 class Object(Widget):
 	initial_x, initial_y = None, None
+	owner_id = None
+
 	def __init__(self, x, y, size):
 		Widget.__init__(self, pos=(x,y), size=(size, size))
 		self.initial_x, self.initial_y = x, y
@@ -114,7 +116,9 @@ class Workspace(Scatter):
 		# by returning True
 		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_object.dispatch('on_touch_down', touch)
+			# TODO keep track of ID of touch
 			self.object_moving = True
+			self.my_object.owner_id = touch.ud
 			return True
 		# if panning is explicitly disabled (mostly happens when we have only one workspace)
 		# return True anyway, so container won't be panned
@@ -123,12 +127,13 @@ class Workspace(Scatter):
 		return False
 
 	def on_touch_move (self, touch):
-		if self.object_moving:
+		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 
 	def on_touch_up (self, touch):
 		# if touch lefts from a target trigger that target
-		self.object_moving = False
+		if self.object_moving and touch.ud == self.my_object.owner_id:
+			self.object_moving = False
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
