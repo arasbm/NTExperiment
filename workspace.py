@@ -141,8 +141,7 @@ class Container(Scatter):
 			self.frames.append(frame)
 			layout.add_widget(frame)
 		self.add_widget(layout)
-		# for now all workspaces will have object and target in them
-		# TODO remove these codes and call functions from container (or another class controlling the experiment)
+		# for now container will have a random object and target
 		self.create_random_object()
 		self.create_random_target()
 	
@@ -151,7 +150,7 @@ class Container(Scatter):
 		# by returning True
 		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_object.dispatch('on_touch_down', touch)
-			# TODO keep track of ID of touch
+			# TODO maybe keep touch itself in my_object, instead of it's ud
 			self.object_moving = True
 			self.my_object.owner_id = touch.ud
 			return True
