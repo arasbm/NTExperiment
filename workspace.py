@@ -4,6 +4,7 @@ kivy.require('1.0.6')
 from kivy.app import App
 
 from random import random, randint
+from threading import Timer
 
 from kivy.uix.scatter import Scatter
 from kivy.uix.widget import Widget
@@ -23,7 +24,7 @@ from kivy.graphics import Color, Ellipse, Rectangle
 "			Class Structure				"
 "  * Container is main element of GUI, contains workspaces	"
 "  * Container can have some Workspace in it			"
-"  * Workspace can have one Object and/or Target		"
+"  * Container can have one Object and/or Target		"
 "								"
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -127,6 +128,9 @@ class Container(Scatter):
 	anim_duration = 0.2
 	slide_threshold = 200
 
+	sliding = False
+	# TODO define a kept to see if the object is kept in border
+
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
@@ -159,17 +163,40 @@ class Container(Scatter):
 		Scatter.on_touch_down(self, touch)
 		self.initial_x = touch.x
 
+	def single_width(self):
+		return self.width / len(self.frames)
+
+	def current_workspace(self):
+		if self.x > 0:
+			current = 0
+		else:
+			current = int(-1 * self.x / self.single_width())
+		return current
+	
+	def slide_right(self):
+		current = self.current_workspace()
+		if current < len(self.frames) - 1:
+			current += 1
+		self.sliding = False
+		self.slide(current)
+
+	def slide_left(self):
+		current = self.current_workspace()
+		if current > 0:
+			current -= 1
+		self.sliding = False
+		self.slide(current)
+
+	def slide (self, ws):
+		anim = Animation (x = -1 * ws * self.single_width(), duration=self.anim_duration)
+		anim.start(self)
+
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
 		if self.initial_x != None:
-			single_width = self.width / len(self.frames)
-			if self.x > 0:
-				current = 0
-			else:
-				current = int(-1 * self.x / single_width)
-				if (-1*self.x) % single_width == 0:
-					return True
+			current = self.current_workspace()
+			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
 				if self.initial_x > touch.x:
 					if abs(self.initial_x - touch.x) > self.slide_threshold:
 						current = current + 1
@@ -179,8 +206,7 @@ class Container(Scatter):
 					current = current
 					if abs(self.initial_x - touch.x) < self.slide_threshold:
 						current = current + 1
-			anim = Animation (x = -1 * current * single_width, duration=self.anim_duration)
-			anim.start(self)
+			self.slide(current)
 			self.initial_x = None
 		# if touch lefts from a target trigger that target
 		if self.object_moving and touch.ud == self.my_object.owner_id:
@@ -193,6 +219,12 @@ class Container(Scatter):
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			if (touch.x - self.x) % 900 > 800 and not self.sliding:
+				self.sliding = True
+				Timer(0.5,self.slide_right).start()
+			if (touch.x - self.x) % 900 < 100 and not self.sliding:
+				self.sliding = True
+				Timer(0.5,self.slide_left).start()
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
