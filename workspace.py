@@ -53,7 +53,7 @@ class Object(Widget):
 		self.canvas.add(Ellipse(pos=(self.x,self.y), size=(self.width, self.height)))
 
 	def on_touch_down(self, touch):
-		print 'object touched'
+		pass
 
 # stands for a target on a workspace
 class Target(Widget):
@@ -63,20 +63,41 @@ class Target(Widget):
 		self.canvas.add(Ellipse(pos=(x,y), size=(size, size)))
 
 	def on_touch_up(self, touch):
-		print 'target touched'
+		pass
 
 # stands for a workspace, within a container
 class Workspace(Scatter):
-	# workspace may have an object and a target in it
-	my_object = None
-	my_target = None
 	scroll = False
 	# if workspace is colored inside, there's an uncolored margin around it.
 	margin = 10
 	# color of background
 	background = Color(0.8,0.8,0.8)
+
+	def __init__(self, width, height, scroll = False):
+		Scatter.__init__(self, size=(width, height), size_hint_x=None)
+		self.width, self.height, self.scroll = width, height, scroll
+		# drawing a frame inside workspace
+		self.canvas.add(self.background)
+		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(width-2*self.margin, height-2*self.margin)))
+		
+	def on_touch_down (self, touch):
+		# if panning is explicitly disabled (mostly happens when we have only one workspace)
+		# return True anyway, so container won't be panned
+		if not self.scroll:
+			return True
+		return False
+
+	def on_touch_up (self, touch):
+		pass
+
+# stands for a set of workspaces
+class Container(Scatter):
+	# workspace may have an object and a target in it
+	my_object = None
+	my_target = None
 	# state of the object in this workspace
 	object_moving = False
+	margin = 10
 
 	# returns a random value for size
 	def random_size(self):
@@ -100,47 +121,7 @@ class Workspace(Scatter):
 		self.my_target = Target(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_target)
 
-	def __init__(self, width, height, scroll = False):
-		Scatter.__init__(self, size=(width, height), size_hint_x=None)
-		self.width, self.height, self.scroll = width, height, scroll
-		# drawing a frame inside workspace
-		self.canvas.add(self.background)
-		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(width-2*self.margin, height-2*self.margin)))
-		# for now all workspaces will have object and target in them
-		# TODO remove these codes and call functions from container (or another class controlling the experiment)
-		self.create_random_object()
-		self.create_random_target()
 
-	def on_touch_down (self, touch):
-		# if object touched call it's on_touch_down function and disable panning workspaces
-		# by returning True
-		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
-			self.my_object.dispatch('on_touch_down', touch)
-			# TODO keep track of ID of touch
-			self.object_moving = True
-			self.my_object.owner_id = touch.ud
-			return True
-		# if panning is explicitly disabled (mostly happens when we have only one workspace)
-		# return True anyway, so container won't be panned
-		if not self.scroll:
-			return True
-		return False
-
-	def on_touch_move (self, touch):
-		if self.object_moving and touch.ud == self.my_object.owner_id:
-			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
-
-	def on_touch_up (self, touch):
-		# if touch lefts from a target trigger that target
-		if self.object_moving and touch.ud == self.my_object.owner_id:
-			self.object_moving = False
-		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
-			self.my_target.dispatch('on_touch_up', touch)
-			return True
-		return False
-
-# stands for a set of workspaces
-class Container(Scatter):
 	frames = None
 	initial_x = None
 	anim_duration = 0.2
@@ -160,8 +141,20 @@ class Container(Scatter):
 			self.frames.append(frame)
 			layout.add_widget(frame)
 		self.add_widget(layout)
+		# for now all workspaces will have object and target in them
+		# TODO remove these codes and call functions from container (or another class controlling the experiment)
+		self.create_random_object()
+		self.create_random_target()
 	
 	def on_touch_down (self, touch):
+		# if object touched call it's on_touch_down function and disable panning workspaces
+		# by returning True
+		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
+			self.my_object.dispatch('on_touch_down', touch)
+			# TODO keep track of ID of touch
+			self.object_moving = True
+			self.my_object.owner_id = touch.ud
+			return True
 		# calls same function in it's ancestor
 		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
@@ -170,27 +163,39 @@ class Container(Scatter):
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
-		if self.initial_x == None:
-			return
-		single_width = self.width / len(self.frames)
-		if self.x > 0:
-			current = 0
-		else:
-			current = int(-1 * self.x / single_width)
-			if (-1*self.x) % single_width == 0:
-				return True
-			if self.initial_x > touch.x:
-				if abs(self.initial_x - touch.x) > self.slide_threshold:
-					current = current + 1
-				if current >= len(self.frames):
-					current = len(self.frames) - 1
+		if self.initial_x != None:
+			single_width = self.width / len(self.frames)
+			if self.x > 0:
+				current = 0
 			else:
-				current = current
-				if abs(self.initial_x - touch.x) < self.slide_threshold:
-					current = current + 1
-		anim = Animation (x = -1 * current * single_width, duration=self.anim_duration)
-		anim.start(self)
-		self.initial_x = None
+				current = int(-1 * self.x / single_width)
+				if (-1*self.x) % single_width == 0:
+					return True
+				if self.initial_x > touch.x:
+					if abs(self.initial_x - touch.x) > self.slide_threshold:
+						current = current + 1
+					if current >= len(self.frames):
+						current = len(self.frames) - 1
+				else:
+					current = current
+					if abs(self.initial_x - touch.x) < self.slide_threshold:
+						current = current + 1
+			anim = Animation (x = -1 * current * single_width, duration=self.anim_duration)
+			anim.start(self)
+			self.initial_x = None
+		# if touch lefts from a target trigger that target
+		if self.object_moving and touch.ud == self.my_object.owner_id:
+			self.object_moving = False
+		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+			self.my_target.dispatch('on_touch_up', touch)
+			return True
+		return False
+
+	def on_touch_move (self, touch):
+		if self.object_moving and touch.ud == self.my_object.owner_id:
+			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+		if not self.object_moving or touch.ud != self.my_object.owner_id:
+			Scatter.on_touch_move(self, touch)
 
 class WorkspaceApp(App):
 	def build(self):
