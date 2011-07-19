@@ -99,6 +99,7 @@ class Container(Scatter):
 	# state of the object in this workspace
 	object_moving = False
 	margin = 10
+	border_delay = 1
 
 	# returns a random value for size
 	def random_size(self):
@@ -130,6 +131,8 @@ class Container(Scatter):
 
 	sliding = False
 	# TODO define a kept to see if the object is kept in border
+	stop_slide = False
+	border_size = 100
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -174,17 +177,23 @@ class Container(Scatter):
 		return current
 	
 	def slide_right(self):
+		self.sliding = False
+		if self.stop_slide:
+			self.stop_slide = False
+			return
 		current = self.current_workspace()
 		if current < len(self.frames) - 1:
 			current += 1
-		self.sliding = False
 		self.slide(current)
 
 	def slide_left(self):
+		self.sliding = False
+		if self.stop_slide:
+			self.stop_slide = False
+			return
 		current = self.current_workspace()
 		if current > 0:
 			current -= 1
-		self.sliding = False
 		self.slide(current)
 
 	def slide (self, ws):
@@ -216,15 +225,23 @@ class Container(Scatter):
 			return True
 		return False
 
+	def on_left_border (self, touch):
+		return (touch.x - self.x) % self.single_width() < self.border_size
+
+	def on_right_border (self, touch):
+		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
+
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
-			if (touch.x - self.x) % 900 > 800 and not self.sliding:
+			if self.on_right_border(touch) and not self.sliding:
 				self.sliding = True
-				Timer(0.5,self.slide_right).start()
-			if (touch.x - self.x) % 900 < 100 and not self.sliding:
+				Timer(self.border_delay,self.slide_right).start()
+			if self.on_left_border(touch) and not self.sliding:
 				self.sliding = True
-				Timer(0.5,self.slide_left).start()
+				Timer(self.border_delay,self.slide_left).start()
+			if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
+				self.stop_slide = True
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
