@@ -31,6 +31,7 @@ from kivy.graphics import Color, Ellipse, Rectangle
 # default value for color of object and target
 object_color = Color(1,0,0)
 target_color = Color(0,0,1)
+target_highlight_color = Color(0,1,0)
 
 # stands for an object that can be dragged or moved to target
 class Object(Widget):
@@ -58,13 +59,26 @@ class Object(Widget):
 
 # stands for a target on a workspace
 class Target(Widget):
+	highlighted = False
+
 	def __init__(self, x, y, size):
 		Widget.__init__(self, pos=(x,y), size=(size, size))	
-		self.canvas.add(target_color)
-		self.canvas.add(Ellipse(pos=(x,y), size=(size, size)))
+		self.draw()
+
+	def draw(self):
+		self.canvas.clear()
+		if not self.highlighted:
+			self.canvas.add(target_color)
+		else:
+			self.canvas.add(target_highlight_color)
+		self.canvas.add(Ellipse(pos=(self.x,self.y), size=(self.width, self.height)))
 
 	def on_touch_up(self, touch):
 		pass
+
+	def highlight(self, on):
+		self.highlighted = on
+		self.draw()
 
 # stands for a workspace, within a container
 class Workspace(Scatter):
@@ -98,16 +112,21 @@ class Container(Scatter):
 	my_target = None
 	# state of the object in this workspace
 	object_moving = False
+	# graphical margin of canvas
 	margin = 10
-	border_delay = 1
+	# enable sliding by hand, not to be confused with enable_border_slide
+	enable_slide = True
 
-
+	# list of workspaces will be saved in this variable
 	frames = None
+	# where user starts sliding the workspace (used for later use in on_touch_up)
 	initial_x = None
+	# duration of automatic sliding
 	anim_duration = 0.2
+	# minimum value of panning required for automatic sliding
 	slide_threshold = 200
 
-	# enable/disable sliding by going to border
+	# enable/disable sliding by going to border, not to be confused with enable_slide
 	enable_border_slide = True
 	# workspaces are sliding or not (if so, do not consider further slide commands)
 	sliding = False
@@ -115,6 +134,8 @@ class Container(Scatter):
 	stop_slide = False
 	# border size
 	border_size = 100
+	# threshold time that user should keep the object in border to start border sliding
+	border_delay = 1
 
 	# returns a random value for size
 	def random_size(self):
@@ -141,6 +162,7 @@ class Container(Scatter):
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
+		self.do_translation_x = self.enable_slide
 		# boxlayout lets us put some workspaces beside eachother
 		layout = BoxLayout(orientation='horizontal')
 		self.frames = []
@@ -231,7 +253,9 @@ class Container(Scatter):
 			self.initial_x = None
 		# if touch lefts from a target trigger that target
 		if self.object_moving and touch.ud == self.my_object.owner_id:
+			self.stop_slide = True
 			self.object_moving = False
+			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
@@ -255,6 +279,10 @@ class Container(Scatter):
 					Timer(self.border_delay,self.slide_left).start()
 				if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
 					self.stop_slide = True
+			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+				self.my_target.highlight(True)
+			else:
+				self.my_target.highlight(False)
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
