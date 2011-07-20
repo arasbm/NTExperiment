@@ -154,6 +154,8 @@ class Container(Scatter):
 
 	# function to create a random target for object
 	def create_random_target(self):
+		if self.my_target != None:
+			self.remove_widget(self.my_target)
 		x=self.random_value(self.width)
 		y=self.random_value(self.height)
 		self.my_target = Target(x=x, y=y, size=self.random_size())
@@ -234,6 +236,12 @@ class Container(Scatter):
 		anim = Animation (x = -1 * ws * self.single_width(), duration=self.anim_duration)
 		anim.start(self)
 
+	def swap_object_target(self):
+		self.my_object.x, self.my_object.y = self.my_target.x, self.my_target.y
+		self.my_object.width, self.my_object.height = self.my_target.width, self.my_target.height
+		self.my_object.draw()
+		self.create_random_target()
+
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
@@ -253,9 +261,13 @@ class Container(Scatter):
 			self.initial_x = None
 		# if touch lefts from a target trigger that target
 		if self.object_moving and touch.ud == self.my_object.owner_id:
-			self.stop_slide = True
+			if self.sliding:
+				self.stop_slide = True
 			self.object_moving = False
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			# if object is released on target, swap them and make a new target
+			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+				self.swap_object_target()
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
