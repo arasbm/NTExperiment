@@ -101,6 +101,21 @@ class Container(Scatter):
 	margin = 10
 	border_delay = 1
 
+
+	frames = None
+	initial_x = None
+	anim_duration = 0.2
+	slide_threshold = 200
+
+	# enable/disable sliding by going to border
+	enable_border_slide = True
+	# workspaces are sliding or not (if so, do not consider further slide commands)
+	sliding = False
+	# if user returns the object from border, so even if Timer is triggered, it shouldn't slide the workspace
+	stop_slide = False
+	# border size
+	border_size = 100
+
 	# returns a random value for size
 	def random_size(self):
 		return 10+30*random()
@@ -122,17 +137,6 @@ class Container(Scatter):
 		y=self.random_value(self.height)
 		self.my_target = Target(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_target)
-
-
-	frames = None
-	initial_x = None
-	anim_duration = 0.2
-	slide_threshold = 200
-
-	sliding = False
-	# TODO define a kept to see if the object is kept in border
-	stop_slide = False
-	border_size = 100
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -181,20 +185,28 @@ class Container(Scatter):
 		if self.stop_slide:
 			self.stop_slide = False
 			return
+		if not self.enable_border_slide:
+			return
 		current = self.current_workspace()
 		if current < len(self.frames) - 1:
 			current += 1
 		self.slide(current)
+		self.sliding = True
+		Timer(self.border_delay,self.slide_right).start()
 
 	def slide_left(self):
 		self.sliding = False
 		if self.stop_slide:
 			self.stop_slide = False
 			return
+		if not self.enable_border_slide:
+			return
 		current = self.current_workspace()
 		if current > 0:
 			current -= 1
 		self.slide(current)
+		self.sliding = True
+		Timer(self.border_delay,self.slide_left).start()
 
 	def slide (self, ws):
 		anim = Animation (x = -1 * ws * self.single_width(), duration=self.anim_duration)
@@ -234,14 +246,15 @@ class Container(Scatter):
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
-			if self.on_right_border(touch) and not self.sliding:
-				self.sliding = True
-				Timer(self.border_delay,self.slide_right).start()
-			if self.on_left_border(touch) and not self.sliding:
-				self.sliding = True
-				Timer(self.border_delay,self.slide_left).start()
-			if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
-				self.stop_slide = True
+			if self.enable_border_slide:
+				if self.on_right_border(touch) and not self.sliding:
+					self.sliding = True
+					Timer(self.border_delay,self.slide_right).start()
+				if self.on_left_border(touch) and not self.sliding:
+					self.sliding = True
+					Timer(self.border_delay,self.slide_left).start()
+				if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
+					self.stop_slide = True
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
