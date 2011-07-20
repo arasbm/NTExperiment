@@ -57,6 +57,9 @@ class Object(Widget):
 	def on_touch_down(self, touch):
 		pass
 
+	def move_back(self):
+		pass
+
 # stands for a target on a workspace
 class Target(Widget):
 	highlighted = False
@@ -142,13 +145,13 @@ class Container(Scatter):
 		return 10+30*random()
 
 	# returns a random value with limit, considering margin
-	def random_value(self,limit):
+	def random_dimension(self,limit):
 		return 4*self.margin + random() * (limit - 8*self.margin)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		x=self.random_value(self.width)
-		y=self.random_value(self.height)
+		x=self.random_dimension(self.width)
+		y=self.random_dimension(self.height)
 		self.my_object = Object(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_object)
 
@@ -156,8 +159,8 @@ class Container(Scatter):
 	def create_random_target(self):
 		if self.my_target != None:
 			self.remove_widget(self.my_target)
-		x=self.random_value(self.width)
-		y=self.random_value(self.height)
+		x=self.random_dimension(self.width)
+		y=self.random_dimension(self.height)
 		self.my_target = Target(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_target)
 
@@ -268,6 +271,8 @@ class Container(Scatter):
 			# if object is released on target, swap them and make a new target
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 				self.swap_object_target()
+			else:
+				self.my_object.move_back()
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
