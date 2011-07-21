@@ -58,7 +58,7 @@ class Object(Widget):
 		pass
 
 	def move_back(self):
-		pass
+		print 'wrong'
 
 # stands for a target on a workspace
 class Target(Widget):
