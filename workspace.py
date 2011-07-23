@@ -90,14 +90,33 @@ class Workspace(Scatter):
 	margin = 10
 	# color of background
 	background = Color(0.8,0.8,0.8)
+	direction_color = Color (0.5,0.5,0)
+	# border size
+	border_size = 100
+
+	right_border = False
+	left_border = False
+
+	w, h = None, None
 
 	def __init__(self, width, height, scroll = False):
 		Scatter.__init__(self, size=(width, height), size_hint_x=None)
-		self.width, self.height, self.scroll = width, height, scroll
-		# drawing a frame inside workspace
-		self.canvas.add(self.background)
-		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(width-2*self.margin, height-2*self.margin)))
+		self.scroll = scroll
+		# TODO get rid of w and h variables (problem is that workspace loses his height value
+		self.w, self.h = width, height
+		self.draw()
 		
+	def draw(self):
+		# drawing a frame inside workspace
+		self.canvas.clear()
+		self.canvas.add(self.background)
+		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(self.w-2*self.margin, self.h-2*self.margin)))
+		self.canvas.add(self.direction_color)
+		if self.right_border:
+			self.canvas.add(Rectangle(pos=(self.w-self.border_size, self.margin), size=(self.border_size, self.h-2*self.margin)))
+		if self.left_border:
+			self.canvas.add(Rectangle(pos=(0, self.margin), size=(self.border_size, self.h-2*self.margin)))
+
 	def on_touch_down (self, touch):
 		# if panning is explicitly disabled (mostly happens when we have only one workspace)
 		# return True anyway, so container won't be panned
@@ -142,27 +161,46 @@ class Container(Scatter):
 
 	# returns a random value for size
 	def random_size(self):
-		return 10+30*random()
+		return 10+10*int(3*random())
 
 	# returns a random value with limit, considering margin
-	def random_dimension(self,limit):
-		return 4*self.margin + random() * (limit - 8*self.margin)
+	def random_x_dimension(self):
+		return int(random()*len(self.frames))*self.single_width() + self.border_size + self.margin + random() * (self.single_width() - 2*self.border_size - 2*self.margin)
+
+	def random_y_dimension(self):
+		return self.border_size + random() * (self.height - 2*self.border_size)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		x=self.random_dimension(self.width)
-		y=self.random_dimension(self.height)
+		x=self.random_x_dimension()
+		y=self.random_y_dimension()
 		self.my_object = Object(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_object)
+	
+	def which_workspace(self, x):
+		return int (x / self.single_width())
 
 	# function to create a random target for object
 	def create_random_target(self):
 		if self.my_target != None:
 			self.remove_widget(self.my_target)
-		x=self.random_dimension(self.width)
-		y=self.random_dimension(self.height)
+		x=self.random_x_dimension()
+		y=self.random_y_dimension()
 		self.my_target = Target(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_target)
+		# adding appropriate borders
+		mark_from = self.which_workspace(self.my_object.x)
+		mark_to = self.which_workspace(self.my_target.x)
+		for f in self.frames:
+			f.right_border = f.left_border = False
+		if mark_from < mark_to:
+			for i in range (mark_from, mark_to):
+				self.frames[i].right_border = True
+		elif mark_from > mark_to:
+			for i in range (mark_to+1, mark_from+1):
+				self.frames[i].left_border = True
+		for f in self.frames:
+			f.draw()
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -273,6 +311,7 @@ class Container(Scatter):
 				self.swap_object_target()
 			else:
 				self.my_object.move_back()
+			self.my_object.owner_id = None
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
