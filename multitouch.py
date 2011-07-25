@@ -1,3 +1,4 @@
+import time
 import kivy
 kivy.require('1.0.6')
 
@@ -20,6 +21,10 @@ from kivy.animation import Animation
 
 from kivy.graphics import Color, Ellipse, Rectangle
 
+from kivy.logger import Logger
+
+from kivy.core.audio import Sound, SoundLoader
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "			Class Structure				"
 "  * Container is main element of GUI, contains workspaces	"
@@ -29,7 +34,7 @@ from kivy.graphics import Color, Ellipse, Rectangle
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # default value for color of object and target
-object_color = Color(1,0,0)
+object_color = Color(0.86, 0.28, 0.078)
 target_color = Color(0,0,1)
 target_highlight_color = Color(0,1,0)
 
@@ -89,7 +94,7 @@ class Workspace(Scatter):
 	# if workspace is colored inside, there's an uncolored margin around it.
 	margin = 10
 	# color of background
-	background = Color(0.8,0.8,0.8)
+	background = Color(0.8,0.8,0.8, 1)
 	direction_color = Color (0.5,0.5,0)
 	# border size
 	border_size = 100
@@ -157,11 +162,14 @@ class Container(Scatter):
 	# border size
 	border_size = 100
 	# threshold time that user should keep the object in border to start border sliding
-	border_delay = 1
+	border_delay = 0.7
 
 	# returns a random value for size
 	def random_size(self):
-		return 10+10*int(3*random())
+		base = 30
+		step = 20
+		max_levels = 3
+		return base+step*int(max_levels*random())
 
 	# returns a random value with limit, considering margin
 	def random_x_dimension(self):
@@ -193,12 +201,11 @@ class Container(Scatter):
 		mark_to = self.which_workspace(self.my_target.x)
 		for f in self.frames:
 			f.right_border = f.left_border = False
-		if mark_from < mark_to:
-			for i in range (mark_from, mark_to):
-				self.frames[i].right_border = True
-		elif mark_from > mark_to:
-			for i in range (mark_to+1, mark_from+1):
+		for i in range (len(self.frames)):
+			if i > mark_to:
 				self.frames[i].left_border = True
+			elif i < mark_to:
+				self.frames[i].right_border = True
 		for f in self.frames:
 			f.draw()
 
@@ -346,8 +353,21 @@ class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=3))
+		root.add_widget(Container(ws_count=7))
 		return root
 
+def log_time_action(action):
+	Logger.info('something: ' + action + ' @' + str(time.time()))
+
 if __name__ in ('__main__', '__android__'):
+	log_time_action('start')
+	"""
+	sound = SoundLoader.load(filename='sound/beep-1.mp3')
+	if not sound:
+	    # unable to load this sound?
+	    print 'error or something'
+	else:
+	    # sound loaded, let's play!
+	    sound.play()
+	"""
 	WorkspaceApp().run()
