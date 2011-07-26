@@ -149,9 +149,9 @@ class Container(Scatter):
 	# where user starts sliding the workspace (used for later use in on_touch_up)
 	initial_x = None
 	# duration of automatic sliding
-	anim_duration = 0.2
+	anim_duration = 1
 	# minimum value of panning required for automatic sliding
-	slide_threshold = 200
+	slide_threshold = 50
 
 	# enable/disable sliding by going to border, not to be confused with enable_slide
 	enable_border_slide = False
@@ -319,9 +319,10 @@ class Container(Scatter):
 				if current >= len(self.frames):
 					current = len(self.frames) - 1
 			else:
-				current = current
-				if abs(self.initial_x - touch.x) < self.slide_threshold:
-					current = current + 1
+				if abs(self.initial_x - touch.x) > self.slide_threshold:
+					current = current - 1
+				if current < 0:
+					current = 0
 			self.slide(current)
 			self.initial_x = None
 
