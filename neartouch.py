@@ -391,6 +391,10 @@ class Container(Scatter):
 					self.swap_object_target()
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
+			self.canvas.clear()
+			self.draw()
+			self.canvas.add(Color(0,0,0))
+			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
 
 class WorkspaceApp(App):
 	def build(self):
