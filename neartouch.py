@@ -257,6 +257,13 @@ class Container(Scatter):
 			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
 			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 				print 'object grabbed'
+				sound = SoundLoader.load(filename='sound/grab.wav')
+				if not sound:
+					# unable to load this sound?
+					pass
+				else:
+					# sound loaded, let's play!
+					sound.play()
 				self.my_object.dispatch('on_touch_down', touch)
 				self.object_moving = True
 				self.my_object.owner_id = hand_id
@@ -391,6 +398,13 @@ class Container(Scatter):
 				self.object_moving = False
 				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 					self.swap_object_target()
+					sound = SoundLoader.load(filename='sound/release.wav')
+					if not sound:
+						# unable to load this sound?
+						pass
+					else:
+						# sound loaded, let's play!
+						sound.play()
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 			self.canvas.clear()
