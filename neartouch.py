@@ -240,10 +240,11 @@ class Container(Scatter):
 			return
 		hand_id = touch.fid / self.hand_gesture_offset
 		gesture_id = touch.fid % self.hand_gesture_offset
-		print gesture_id, self.grab_gesture, self.object_moving
 		if not self.object_moving and gesture_id == self.grab_gesture:
+			print 'grab happened'
 			self.canvas.add(Ellipse(pos=(touch.x, touch.y), size=(30,30)))
 			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
+				print 'object grabbed'
 				self.my_object.dispatch('on_touch_down', touch)
 				self.object_moving = True
 				self.my_object.owner_id = hand_id
@@ -357,6 +358,7 @@ class Container(Scatter):
 		hand_id = touch.fid / self.hand_gesture_offset
 		gesture_id = touch.fid % self.hand_gesture_offset
 		if self.object_moving and hand_id == self.my_object.owner_id:
+			print 'moving around'
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
