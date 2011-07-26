@@ -173,7 +173,7 @@ class Container(Scatter):
 
 	# returns a random value for size
 	def random_size(self):
-		base = 50
+		base = 70
 		step = 30
 		max_levels = 3
 		return base+step*int(max_levels*random())
@@ -322,7 +322,7 @@ class Container(Scatter):
 				current = current
 				if abs(self.initial_x - touch.x) < self.slide_threshold:
 					current = current + 1
-			#self.slide(current)
+			self.slide(current)
 			self.initial_x = None
 
 		"""
@@ -357,7 +357,6 @@ class Container(Scatter):
 		hand_id = touch.fid / self.hand_gesture_offset
 		gesture_id = touch.fid % self.hand_gesture_offset
 		if self.object_moving and hand_id == self.my_object.owner_id:
-			print 'moving around'
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
@@ -373,7 +372,7 @@ class Container(Scatter):
 			else:
 				self.my_target.highlight(False)
 			if gesture_id == self.release_gesture:
-				self.object_moving = True
+				self.object_moving = False
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
