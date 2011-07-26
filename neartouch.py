@@ -249,7 +249,7 @@ class Container(Scatter):
 	def on_touch_down (self, touch):
 		if not 'markerid' in touch.profile:
 			return
-		hand_id = touch.fid / self.hand_gesture_offset
+		hand_id = int(touch.fid / self.hand_gesture_offset)
 		gesture_id = touch.fid % self.hand_gesture_offset
 		if not self.object_moving and gesture_id == self.grab_gesture:
 			self.canvas.clear()
@@ -328,7 +328,7 @@ class Container(Scatter):
 		Scatter.on_touch_up(self, touch)
 		if not 'markerid' in touch.profile:
 			return
-		hand_id = touch.fid / self.hand_gesture_offset
+		hand_id = int(touch.fid / self.hand_gesture_offset)
 		gesture_id = touch.fid % self.hand_gesture_offset
 		self.canvas.clear()
 		self.draw()
@@ -377,7 +377,7 @@ class Container(Scatter):
 		# will not work with simple touch anymore
 		if not 'markerid' in touch.profile:
 			return
-		hand_id = touch.fid / self.hand_gesture_offset
+		hand_id = int(touch.fid / self.hand_gesture_offset)
 		gesture_id = touch.fid % self.hand_gesture_offset
 		if self.object_moving and hand_id == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
