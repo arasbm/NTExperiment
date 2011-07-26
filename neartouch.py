@@ -396,9 +396,16 @@ class Container(Scatter):
 				self.my_target.highlight(False)
 			if gesture_id == self.release_gesture:
 				self.object_moving = False
+				sound = SoundLoader.load(filename='sound/release.wav')
+				if not sound:
+					# unable to load this sound?
+					pass
+				else:
+					# sound loaded, let's play!
+					sound.play()
 				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 					self.swap_object_target()
-					sound = SoundLoader.load(filename='sound/release.wav')
+					sound = SoundLoader.load(filename='sound/collide.wav')
 					if not sound:
 						# unable to load this sound?
 						pass
