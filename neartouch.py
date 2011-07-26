@@ -180,10 +180,10 @@ class Container(Scatter):
 
 	# returns a random value with limit, considering margin
 	def random_x_dimension(self):
-		return int(random()*len(self.frames))*self.single_width() + self.border_size + self.margin + random() * (self.single_width() - 2*self.border_size - 2*self.margin)
+		return int(random()*len(self.frames))*self.single_width() + 3*self.border_size + 3*self.margin + random() * (self.single_width() - 6*self.border_size - 6*self.margin)
 
 	def random_y_dimension(self):
-		return self.border_size + random() * (self.height - 2*self.border_size)
+		return 3*self.border_size + random() * (self.height - 6*self.border_size)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
