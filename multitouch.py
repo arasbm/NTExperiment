@@ -361,7 +361,6 @@ def log_time_action(action):
 
 if __name__ in ('__main__', '__android__'):
 	log_time_action('start')
-	"""
 	sound = SoundLoader.load(filename='sound/beep-1.mp3')
 	if not sound:
 	    # unable to load this sound?
@@ -369,5 +368,4 @@ if __name__ in ('__main__', '__android__'):
 	else:
 	    # sound loaded, let's play!
 	    sound.play()
-	"""
 	WorkspaceApp().run()
