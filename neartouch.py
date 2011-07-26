@@ -187,7 +187,7 @@ class Container(Scatter):
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		x=self.random_x_dimension()
+		x=self.random_x_dimension() % self.single_width()
 		y=self.random_y_dimension()
 		self.my_object = Object(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_object)
@@ -381,7 +381,7 @@ class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=1))
+		root.add_widget(Container(ws_count=3))
 		return root
 
 def log_time_action(action):
