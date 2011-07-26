@@ -374,6 +374,8 @@ class Container(Scatter):
 				self.my_target.highlight(False)
 			if gesture_id == self.release_gesture:
 				self.object_moving = False
+				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+					self.swap_object_target()
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
