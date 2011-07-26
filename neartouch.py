@@ -322,7 +322,7 @@ class Container(Scatter):
 				current = current
 				if abs(self.initial_x - touch.x) < self.slide_threshold:
 					current = current + 1
-			self.slide(current)
+			#self.slide(current)
 			self.initial_x = None
 
 		"""
