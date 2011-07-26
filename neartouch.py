@@ -35,7 +35,7 @@ from kivy.core.audio import Sound, SoundLoader
 
 # default value for color of object and target
 object_color = Color(0.86, 0.28, 0.078)
-target_color = Color(0,0,1)
+target_color = Color(0,0,0.7, 0.5)
 target_highlight_color = Color(0,1,0)
 
 # stands for an object that can be dragged or moved to target
@@ -165,11 +165,11 @@ class Container(Scatter):
 	border_delay = 0.7
 
 	# gesture codes
-	grab_gesture = 24
-	release_gesture = 12
+	grab_gesture = 1
+	release_gesture = 2
 
 	########################
-	hand_gesture_offset = 25
+	hand_gesture_offset = 256
 
 	# returns a random value for size
 	def random_size(self):
@@ -216,7 +216,7 @@ class Container(Scatter):
 		for f in self.frames:
 			f.draw()
 
-	def __init__(self, ws_count, width=900, height=600):
+	def __init__(self, ws_count, width=1920, height=1080):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
 		self.do_translation_x = self.enable_slide
@@ -240,18 +240,20 @@ class Container(Scatter):
 			return
 		hand_id = touch.fid / self.hand_gesture_offset
 		gesture_id = touch.fid % self.hand_gesture_offset
-		# if object touched call it's on_touch_down function and disable panning workspaces
-		# by returning True
-		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
-			self.my_object.dispatch('on_touch_down', touch)
-			# TODO maybe keep touch itself in my_object, instead of it's ud
-			self.object_moving = True
-			self.my_object.owner_id = touch.ud
-			return True
+		print gesture_id, self.grab_gesture, self.object_moving
+		if not self.object_moving and gesture_id == self.grab_gesture:
+			self.canvas.add(Ellipse(pos=(touch.x, touch.y), size=(30,30)))
+			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
+				self.my_object.dispatch('on_touch_down', touch)
+				self.object_moving = True
+				self.my_object.owner_id = hand_id
+				return True
+		if self.object_moving and hand_id != self.my_object.owner_id:
+			self.initial_x = touch.x
+			print 'started sliding'
 		# calls same function in it's ancestor
 		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
-		self.initial_x = touch.x
 
 	def single_width(self):
 		return self.width / len(self.frames)
@@ -304,20 +306,26 @@ class Container(Scatter):
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
-		if self.initial_x != None:
+		if not 'markerid' in touch.profile:
+			return
+		hand_id = touch.fid / self.hand_gesture_offset
+		gesture_id = touch.fid % self.hand_gesture_offset
+		if self.initial_x != None and self.object_moving and hand_id != self.my_object.owner_id:
+			print 'about to slide'
 			current = self.current_workspace()
-			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
-				if self.initial_x > touch.x:
-					if abs(self.initial_x - touch.x) > self.slide_threshold:
-						current = current + 1
-					if current >= len(self.frames):
-						current = len(self.frames) - 1
-				else:
-					current = current
-					if abs(self.initial_x - touch.x) < self.slide_threshold:
-						current = current + 1
+			if self.initial_x > touch.x:
+				if abs(self.initial_x - touch.x) > self.slide_threshold:
+					current = current + 1
+				if current >= len(self.frames):
+					current = len(self.frames) - 1
+			else:
+				current = current
+				if abs(self.initial_x - touch.x) < self.slide_threshold:
+					current = current + 1
 			self.slide(current)
 			self.initial_x = None
+
+		"""
 		# if touch lefts from a target trigger that target
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			if self.sliding:
@@ -333,6 +341,7 @@ class Container(Scatter):
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
+		"""
 		return False
 
 	def on_left_border (self, touch):
@@ -364,11 +373,6 @@ class Container(Scatter):
 				self.my_target.highlight(False)
 			if gesture_id == self.release_gesture:
 				self.object_moving = False
-		if not self.object_moving and gesture_id == self.grab_gesture and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
-			self.my_object.dispatch('on_touch_down', touch)
-			self.object_moving = True
-			self.my_object.owner_id = hand_id
-			return True
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
