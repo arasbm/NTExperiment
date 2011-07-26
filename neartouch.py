@@ -142,7 +142,7 @@ class Container(Scatter):
 	# graphical margin of canvas
 	margin = 10
 	# enable sliding by hand, not to be confused with enable_border_slide
-	enable_slide = True
+	enable_slide = False
 
 	# list of workspaces will be saved in this variable
 	frames = None
@@ -154,7 +154,7 @@ class Container(Scatter):
 	slide_threshold = 200
 
 	# enable/disable sliding by going to border, not to be confused with enable_slide
-	enable_border_slide = True
+	enable_border_slide = False
 	# workspaces are sliding or not (if so, do not consider further slide commands)
 	sliding = False
 	# if user returns the object from border, so even if Timer is triggered, it shouldn't slide the workspace
@@ -163,6 +163,13 @@ class Container(Scatter):
 	border_size = 100
 	# threshold time that user should keep the object in border to start border sliding
 	border_delay = 0.7
+
+	# gesture codes
+	grab_gesture = 24
+	release_gesture = 12
+
+	########################
+	hand_gesture_offset = 25
 
 	# returns a random value for size
 	def random_size(self):
@@ -229,6 +236,10 @@ class Container(Scatter):
 		self.create_random_target()
 	
 	def on_touch_down (self, touch):
+		if not 'markerid' in touch.profile:
+			return
+		hand_id = touch.fid / self.hand_gesture_offset
+		gesture_id = touch.fid % self.hand_gesture_offset
 		# if object touched call it's on_touch_down function and disable panning workspaces
 		# by returning True
 		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
@@ -331,7 +342,12 @@ class Container(Scatter):
 		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
 
 	def on_touch_move (self, touch):
-		if self.object_moving and touch.ud == self.my_object.owner_id:
+		# will not work with simple touch anymore
+		if not 'markerid' in touch.profile:
+			return
+		hand_id = touch.fid / self.hand_gesture_offset
+		gesture_id = touch.fid % self.hand_gesture_offset
+		if self.object_moving and hand_id == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
@@ -346,6 +362,13 @@ class Container(Scatter):
 				self.my_target.highlight(True)
 			else:
 				self.my_target.highlight(False)
+			if gesture_id == self.release_gesture:
+				self.object_moving = False
+		if not self.object_moving and gesture_id == self.grab_gesture and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
+			self.my_object.dispatch('on_touch_down', touch)
+			self.object_moving = True
+			self.my_object.owner_id = hand_id
+			return True
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
@@ -353,7 +376,7 @@ class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=7))
+		root.add_widget(Container(ws_count=1))
 		return root
 
 def log_time_action(action):
