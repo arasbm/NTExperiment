@@ -234,6 +234,17 @@ class Container(Scatter):
 		# for now container will have a random object and target
 		self.create_random_object()
 		self.create_random_target()
+
+	def draw (self):
+		layout = BoxLayout(orientation='horizontal')
+		for frame in self.frames:
+			frame.draw()
+			layout.add_widget(frame)
+		self.add_widget(layout)
+		self.my_object.draw()
+		self.add_widget(self.my_object)
+		self.my_target.draw()
+		self.add_widget(self.my_target)
 	
 	def on_touch_down (self, touch):
 		if not 'markerid' in touch.profile:
@@ -242,6 +253,7 @@ class Container(Scatter):
 		gesture_id = touch.fid % self.hand_gesture_offset
 		if not self.object_moving and gesture_id == self.grab_gesture:
 			self.canvas.clear()
+			self.draw()
 			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
 			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 				print 'object grabbed'
