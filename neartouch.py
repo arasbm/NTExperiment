@@ -323,6 +323,8 @@ class Container(Scatter):
 			return
 		hand_id = touch.fid / self.hand_gesture_offset
 		gesture_id = touch.fid % self.hand_gesture_offset
+		self.canvas.clear()
+		self.draw()
 		if self.initial_x != None and self.object_moving and hand_id != self.my_object.owner_id:
 			print 'about to slide'
 			current = self.current_workspace()
