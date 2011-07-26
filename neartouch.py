@@ -173,8 +173,8 @@ class Container(Scatter):
 
 	# returns a random value for size
 	def random_size(self):
-		base = 70
-		step = 30
+		base = 150
+		step = 40
 		max_levels = 3
 		return base+step*int(max_levels*random())
 
