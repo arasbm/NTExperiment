@@ -36,7 +36,7 @@ from kivy.core.audio import Sound, SoundLoader
 # default value for color of object and target
 object_color = Color(0.86, 0.28, 0.078)
 target_color = Color(0,0,0.7, 0.5)
-target_highlight_color = Color(0,1,0)
+target_highlight_color = Color(0,0,1)
 
 # stands for an object that can be dragged or moved to target
 class Object(Widget):

@@ -35,8 +35,8 @@ from kivy.core.audio import Sound, SoundLoader
 
 # default value for color of object and target
 object_color = Color(0.86, 0.28, 0.078)
-target_color = Color(0,0,1)
-target_highlight_color = Color(0,1,0)
+target_color = Color(0,0,0.7, 0.5)
+target_highlight_color = Color(0,0,1)
 
 # stands for an object that can be dragged or moved to target
 class Object(Widget):
@@ -361,11 +361,4 @@ def log_time_action(action):
 
 if __name__ in ('__main__', '__android__'):
 	log_time_action('start')
-	sound = SoundLoader.load(filename='sound/beep-1.mp3')
-	if not sound:
-	    # unable to load this sound?
-	    print 'error or something'
-	else:
-	    # sound loaded, let's play!
-	    sound.play()
 	WorkspaceApp().run()
