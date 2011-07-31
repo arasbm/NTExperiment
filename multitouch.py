@@ -41,6 +41,10 @@ class Container(ContainerBase):
 	def on_touch_down (self, touch):
 		# if object touched call it's on_touch_down function and disable panning workspaces
 		# by returning True
+
+		"""
+		"  grab  "
+		"""
 		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_object.dispatch('on_touch_down', touch)
 			# TODO maybe keep touch itself in my_object, instead of it's ud
@@ -51,11 +55,17 @@ class Container(ContainerBase):
 		# calls same function in it's ancestor
 		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
+		"""
+		"  sense sliding  "
+		"""
 		self.initial_x = touch.x
 
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
+		"""
+		"  starts sliding  "
+		"""
 		if self.initial_x != None:
 			current = self.current_workspace()
 			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
@@ -71,6 +81,9 @@ class Container(ContainerBase):
 			self.slide(current)
 			self.initial_x = None
 		# if touch lefts from a target trigger that target
+		"""
+		"  release  "
+		"""
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			if self.sliding:
 				self.stop_slide = True
@@ -79,11 +92,16 @@ class Container(ContainerBase):
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 			# if object is released on target, swap them and make a new target
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+				"""
+				"  collide  "
+				"""
 				self.swap_object_target()
 				self.play_collide_sound()
 			else:
 				self.my_object.move_back()
 			self.my_object.owner_id = None
+
+		# TODO no idea about this - to be removed
 		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
@@ -92,6 +110,9 @@ class Container(ContainerBase):
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			"""
+			"  border slide  "
+			"""
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
 					self.sliding = True
@@ -101,6 +122,9 @@ class Container(ContainerBase):
 					Timer(self.border_delay,self.slide_left).start()
 				if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
 					self.stop_slide = True
+			"""
+			"  highlight target  "
+			"""
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 				self.my_target.highlight(True)
 			else:

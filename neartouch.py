@@ -43,18 +43,27 @@ class Container(ContainerBase):
 			self.canvas.clear()
 			self.draw()
 			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
+			"""
+			"  grab  "
+			"""
 			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
 				print 'object grabbed'
 				self.play_grab_sound()
-				self.my_object.dispatch('on_touch_down', touch)
+				# does not seem necessary
+				# self.my_object.dispatch('on_touch_down', touch)
 				self.object_moving = True
 				self.my_object.owner_id = hand_id
 				return True
+
+		# keeps x-location of touch, to use for sliding the workspace later
+		"""
+		"  sense sliding  "
+		"""
 		if self.object_moving and hand_id != self.my_object.owner_id:
 			self.initial_x = touch.x
 			print 'started sliding'
+
 		# calls same function in it's ancestor
-		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
 
 	def on_touch_up (self, touch):
@@ -66,6 +75,10 @@ class Container(ContainerBase):
 		gesture_id = touch.fid % self.hand_gesture_offset
 		self.canvas.clear()
 		self.draw()
+
+		"""
+		"  starts sliding  "
+		"""
 		if self.initial_x != None and self.object_moving and hand_id != self.my_object.owner_id:
 			print 'about to slide'
 			current = self.current_workspace()
@@ -89,8 +102,12 @@ class Container(ContainerBase):
 			return
 		hand_id = int(touch.fid / self.hand_gesture_offset)
 		gesture_id = touch.fid % self.hand_gesture_offset
+
 		if self.object_moving and hand_id == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			"""
+			"  border slide  "
+			"""
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
 					self.sliding = True
@@ -100,17 +117,32 @@ class Container(ContainerBase):
 					Timer(self.border_delay,self.slide_left).start()
 				if not self.on_right_border(touch) and not self.on_left_border(touch) and self.sliding:
 					self.stop_slide = True
+
+			"""
+			"  highlighting target  "
+			"""
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 				self.my_target.highlight(True)
 			else:
 				self.my_target.highlight(False)
+
+			"""
+			"  release  "
+			"""
 			if gesture_id == self.release_gesture:
 				self.object_moving = False
 				if play_sound:
 					self.play_release_sound()
+				"""
+				"  collide  "
+				"""
 				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 					self.swap_object_target()
 					self.play_collide_sound()
+
+		"""
+		"  show cursor  "
+		"""
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 			self.canvas.clear()
