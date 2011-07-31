@@ -66,7 +66,7 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if self.initial_x != None:
+		if self.initial_x != None and (not self.object_moving or touch.ud != self.my_object.owner_id):
 			current = self.current_workspace()
 			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
 				if self.initial_x > touch.x:
