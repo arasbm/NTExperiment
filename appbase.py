@@ -26,10 +26,8 @@ from kivy.logger import Logger
 from kivy.core.audio import Sound, SoundLoader
 
 from touchbase import Workspace, Object, Target
-from appbase import ContainerBase
 
-# stands for a set of workspaces
-class Container(ContainerBase):
+class ContainerBase(Scatter):
 	# workspace may have an object and a target in it
 	my_object = None
 	my_target = None
@@ -70,23 +68,42 @@ class Container(ContainerBase):
 	# if application should play sounds
 	play_sound = False
 
+	def __init__(self, ws_count, width=900, height=600):
+		# container is a scatter that just can be panned in x (horizontal) direction
+		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
+		self.do_translation_x = self.enable_slide
+		# boxlayout lets us put some workspaces beside eachother
+		layout = BoxLayout(orientation='horizontal')
+		self.frames = []
+		# disable scrolling if we only have one workspace
+		scroll = (ws_count > 1)
+		# create ws_count
+		for i in range(ws_count):
+			frame = Workspace(height=height, width=width, scroll=scroll)
+			self.frames.append(frame)
+			layout.add_widget(frame)
+		self.add_widget(layout)
+		# for now container will have a random object and target
+		self.create_random_object()
+		self.create_random_target()
+
 	# returns a random value for size
 	def random_size(self):
-		base = 150
-		step = 40
+		base = 30
+		step = 20
 		max_levels = 3
 		return base+step*int(max_levels*random())
 
 	# returns a random value with limit, considering margin
 	def random_x_dimension(self):
-		return int(random()*len(self.frames))*self.single_width() + 3*self.border_size + 3*self.margin + random() * (self.single_width() - 6*self.border_size - 6*self.margin)
+		return int(random()*len(self.frames))*self.single_width() + self.border_size + self.margin + random() * (self.single_width() - 2*self.border_size - 2*self.margin)
 
 	def random_y_dimension(self):
-		return 3*self.border_size + random() * (self.height - 6*self.border_size)
+		return self.border_size + random() * (self.height - 2*self.border_size)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
-		x=self.random_x_dimension() % self.single_width()
+		x=self.random_x_dimension()
 		y=self.random_y_dimension()
 		self.my_object = Object(x=x, y=y, size=self.random_size())
 		self.add_widget(self.my_object)
@@ -115,65 +132,19 @@ class Container(ContainerBase):
 		for f in self.frames:
 			f.draw()
 
-	def __init__(self, ws_count, width=900, height=600):
-		# container is a scatter that just can be panned in x (horizontal) direction
-		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
-		self.do_translation_x = self.enable_slide
-		# boxlayout lets us put some workspaces beside eachother
-		layout = BoxLayout(orientation='horizontal')
-		self.frames = []
-		# disable scrolling if we only have one workspace
-		scroll = (ws_count > 1)
-		# create ws_count
-		for i in range(ws_count):
-			frame = Workspace(height=height, width=width, scroll=scroll)
-			self.frames.append(frame)
-			layout.add_widget(frame)
-		self.add_widget(layout)
-		# for now container will have a random object and target
-		self.create_random_object()
-		self.create_random_target()
-
-	def draw (self):
-		layout = BoxLayout(orientation='horizontal')
-		for frame in self.frames:
-			frame.draw()
-			layout.add_widget(frame)
-		self.add_widget(layout)
-		self.my_object.draw()
-		self.add_widget(self.my_object)
-		self.my_target.draw()
-		self.add_widget(self.my_target)
-	
 	def on_touch_down (self, touch):
-		if not 'markerid' in touch.profile:
-			return
-		hand_id = int(touch.fid / self.hand_gesture_offset)
-		gesture_id = touch.fid % self.hand_gesture_offset
-		if not self.object_moving and gesture_id == self.grab_gesture:
-			self.canvas.clear()
-			self.draw()
-			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
-			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
-				print 'object grabbed'
-				if play_sound:
-					sound = SoundLoader.load(filename='sound/grab.wav')
-					if not sound:
-						# unable to load this sound?
-						pass
-					else:
-						# sound loaded, let's play!
-						sound.play()
-				self.my_object.dispatch('on_touch_down', touch)
-				self.object_moving = True
-				self.my_object.owner_id = hand_id
-				return True
-		if self.object_moving and hand_id != self.my_object.owner_id:
-			self.initial_x = touch.x
-			print 'started sliding'
+		# if object touched call it's on_touch_down function and disable panning workspaces
+		# by returning True
+		if self.my_object != None and self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
+			self.my_object.dispatch('on_touch_down', touch)
+			# TODO maybe keep touch itself in my_object, instead of it's ud
+			self.object_moving = True
+			self.my_object.owner_id = touch.ud
+			return True
 		# calls same function in it's ancestor
 		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
+		self.initial_x = touch.x
 
 	def single_width(self):
 		return self.width / len(self.frames)
@@ -197,7 +168,8 @@ class Container(ContainerBase):
 			current += 1
 		self.slide(current)
 		self.sliding = True
-		Timer(self.border_delay,self.slide_right).start()
+		if self.enable_border_slide:
+			Timer(self.border_delay+self.anim_duration,self.slide_right).start()
 
 	def slide_left(self):
 		self.sliding = False
@@ -211,7 +183,8 @@ class Container(ContainerBase):
 			current -= 1
 		self.slide(current)
 		self.sliding = True
-		Timer(self.border_delay,self.slide_left).start()
+		if self.enable_border_slide:
+			Timer(self.border_delay+self.anim_duration,self.slide_left).start()
 
 	def slide (self, ws):
 		anim = Animation (x = -1 * ws * self.single_width(), duration=self.anim_duration)
@@ -226,27 +199,35 @@ class Container(ContainerBase):
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
 		Scatter.on_touch_up(self, touch)
-		if not 'markerid' in touch.profile:
-			return
-		hand_id = int(touch.fid / self.hand_gesture_offset)
-		gesture_id = touch.fid % self.hand_gesture_offset
-		self.canvas.clear()
-		self.draw()
-		if self.initial_x != None and self.object_moving and hand_id != self.my_object.owner_id:
-			print 'about to slide'
+		if self.initial_x != None:
 			current = self.current_workspace()
-			if self.initial_x > touch.x:
-				if abs(self.initial_x - touch.x) > self.slide_threshold:
-					current = current + 1
-				if current >= len(self.frames):
-					current = len(self.frames) - 1
-			else:
-				if abs(self.initial_x - touch.x) > self.slide_threshold:
-					current = current - 1
-				if current < 0:
-					current = 0
+			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
+				if self.initial_x > touch.x:
+					if abs(self.initial_x - touch.x) > self.slide_threshold:
+						current = current + 1
+					if current >= len(self.frames):
+						current = len(self.frames) - 1
+				else:
+					current = current
+					if abs(self.initial_x - touch.x) < self.slide_threshold:
+						current = current + 1
 			self.slide(current)
 			self.initial_x = None
+		# if touch lefts from a target trigger that target
+		if self.object_moving and touch.ud == self.my_object.owner_id:
+			if self.sliding:
+				self.stop_slide = True
+			self.object_moving = False
+			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			# if object is released on target, swap them and make a new target
+			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+				self.swap_object_target()
+			else:
+				self.my_object.move_back()
+			self.my_object.owner_id = None
+		if self.my_target != None and self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+			self.my_target.dispatch('on_touch_up', touch)
+			return True
 		return False
 
 	def on_left_border (self, touch):
@@ -256,12 +237,7 @@ class Container(ContainerBase):
 		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
 
 	def on_touch_move (self, touch):
-		# will not work with simple touch anymore
-		if not 'markerid' in touch.profile:
-			return
-		hand_id = int(touch.fid / self.hand_gesture_offset)
-		gesture_id = touch.fid % self.hand_gesture_offset
-		if self.object_moving and hand_id == self.my_object.owner_id:
+		if self.object_moving and touch.ud == self.my_object.owner_id:
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
 			if self.enable_border_slide:
 				if self.on_right_border(touch) and not self.sliding:
@@ -276,43 +252,6 @@ class Container(ContainerBase):
 				self.my_target.highlight(True)
 			else:
 				self.my_target.highlight(False)
-			if gesture_id == self.release_gesture:
-				self.object_moving = False
-				if play_sound:
-					sound = SoundLoader.load(filename='sound/release.wav')
-					if not sound:
-						# unable to load this sound?
-						pass
-					else:
-						# sound loaded, let's play!
-						sound.play()
-				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
-					self.swap_object_target()
-					if play_sound:
-						sound = SoundLoader.load(filename='sound/collide.wav')
-						if not sound:
-							# unable to load this sound?
-							pass
-						else:
-							# sound loaded, let's play!
-							sound.play()
 		if not self.object_moving or touch.ud != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
-			self.canvas.clear()
-			self.draw()
-			self.canvas.add(Color(0,0,0))
-			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
 
-class WorkspaceApp(App):
-	def build(self):
-		root = Widget()
-		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=3))
-		return root
-
-def log_time_action(action):
-	Logger.info('something: ' + action + ' @' + str(time.time()))
-
-if __name__ in ('__main__', '__android__'):
-	log_time_action('start')
-	WorkspaceApp().run()

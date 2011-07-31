@@ -26,102 +26,17 @@ from kivy.logger import Logger
 from kivy.core.audio import Sound, SoundLoader
 
 from touchbase import Workspace, Object, Target
+from appbase import ContainerBase
 
 # stands for a set of workspaces
-class Container(Scatter):
-	# workspace may have an object and a target in it
-	my_object = None
-	my_target = None
-	# state of the object in this workspace
-	object_moving = False
-	# graphical margin of canvas
-	margin = 10
-	# enable sliding by hand, not to be confused with enable_border_slide
-	enable_slide = True
-
-	# list of workspaces will be saved in this variable
-	frames = None
-	# where user starts sliding the workspace (used for later use in on_touch_up)
-	initial_x = None
-	# duration of automatic sliding
-	anim_duration = 0.2
-	# minimum value of panning required for automatic sliding
-	slide_threshold = 200
-
-	# enable/disable sliding by going to border, not to be confused with enable_slide
-	enable_border_slide = True
-	# workspaces are sliding or not (if so, do not consider further slide commands)
-	sliding = False
-	# if user returns the object from border, so even if Timer is triggered, it shouldn't slide the workspace
-	stop_slide = False
-	# border size
-	border_size = 100
-	# threshold time that user should keep the object in border to start border sliding
-	border_delay = 0.7
-
-	# returns a random value for size
-	def random_size(self):
-		base = 30
-		step = 20
-		max_levels = 3
-		return base+step*int(max_levels*random())
-
-	# returns a random value with limit, considering margin
-	def random_x_dimension(self):
-		return int(random()*len(self.frames))*self.single_width() + self.border_size + self.margin + random() * (self.single_width() - 2*self.border_size - 2*self.margin)
-
-	def random_y_dimension(self):
-		return self.border_size + random() * (self.height - 2*self.border_size)
-
-	# function to create a random object, which user should drag/move to target
-	def create_random_object(self):
-		x=self.random_x_dimension()
-		y=self.random_y_dimension()
-		self.my_object = Object(x=x, y=y, size=self.random_size())
-		self.add_widget(self.my_object)
-	
-	def which_workspace(self, x):
-		return int (x / self.single_width())
-
-	# function to create a random target for object
-	def create_random_target(self):
-		if self.my_target != None:
-			self.remove_widget(self.my_target)
-		x=self.random_x_dimension()
-		y=self.random_y_dimension()
-		self.my_target = Target(x=x, y=y, size=self.random_size())
-		self.add_widget(self.my_target)
-		# adding appropriate borders
-		mark_from = self.which_workspace(self.my_object.x)
-		mark_to = self.which_workspace(self.my_target.x)
-		for f in self.frames:
-			f.right_border = f.left_border = False
-		for i in range (len(self.frames)):
-			if i > mark_to:
-				self.frames[i].left_border = True
-			elif i < mark_to:
-				self.frames[i].right_border = True
-		for f in self.frames:
-			f.draw()
-
+class Container(ContainerBase):
 	def __init__(self, ws_count, width=900, height=600):
-		# container is a scatter that just can be panned in x (horizontal) direction
-		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
-		self.do_translation_x = self.enable_slide
-		# boxlayout lets us put some workspaces beside eachother
-		layout = BoxLayout(orientation='horizontal')
-		self.frames = []
-		# disable scrolling if we only have one workspace
-		scroll = (ws_count > 1)
-		# create ws_count
-		for i in range(ws_count):
-			frame = Workspace(height=height, width=width, scroll=scroll)
-			self.frames.append(frame)
-			layout.add_widget(frame)
-		self.add_widget(layout)
-		# for now container will have a random object and target
-		self.create_random_object()
-		self.create_random_target()
+		# some predefined variables differ from their default value for multitouch case
+		self.enable_slide = True
+		self.slide_threshold = 200
+		self.enable_border_slide = True
+		# call parent
+		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
 	
 	def on_touch_down (self, touch):
 		# if object touched call it's on_touch_down function and disable panning workspaces
@@ -136,54 +51,6 @@ class Container(Scatter):
 		# keeps x-location of touch, to use for sliding the workspace later
 		Scatter.on_touch_down(self, touch)
 		self.initial_x = touch.x
-
-	def single_width(self):
-		return self.width / len(self.frames)
-
-	def current_workspace(self):
-		if self.x > 0:
-			current = 0
-		else:
-			current = int(-1 * self.x / self.single_width())
-		return current
-	
-	def slide_right(self):
-		self.sliding = False
-		if self.stop_slide:
-			self.stop_slide = False
-			return
-		if not self.enable_border_slide:
-			return
-		current = self.current_workspace()
-		if current < len(self.frames) - 1:
-			current += 1
-		self.slide(current)
-		self.sliding = True
-		Timer(self.border_delay,self.slide_right).start()
-
-	def slide_left(self):
-		self.sliding = False
-		if self.stop_slide:
-			self.stop_slide = False
-			return
-		if not self.enable_border_slide:
-			return
-		current = self.current_workspace()
-		if current > 0:
-			current -= 1
-		self.slide(current)
-		self.sliding = True
-		Timer(self.border_delay,self.slide_left).start()
-
-	def slide (self, ws):
-		anim = Animation (x = -1 * ws * self.single_width(), duration=self.anim_duration)
-		anim.start(self)
-
-	def swap_object_target(self):
-		self.my_object.x, self.my_object.y = self.my_target.x, self.my_target.y
-		self.my_object.width, self.my_object.height = self.my_target.width, self.my_target.height
-		self.my_object.draw()
-		self.create_random_target()
 
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
@@ -218,12 +85,6 @@ class Container(Scatter):
 			self.my_target.dispatch('on_touch_up', touch)
 			return True
 		return False
-
-	def on_left_border (self, touch):
-		return (touch.x - self.x) % self.single_width() < self.border_size
-
-	def on_right_border (self, touch):
-		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
 
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
