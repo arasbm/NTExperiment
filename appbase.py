@@ -66,7 +66,7 @@ class ContainerBase(Scatter):
 	hand_gesture_offset = 256
 
 	# if application should play sounds
-	play_sound = False
+	enable_sound = False
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -187,4 +187,23 @@ class ContainerBase(Scatter):
 
 	def on_right_border (self, touch):
 		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
+
+	def play_grab_sound(self):
+		self.play_sound('sound/grab.wav')
+
+	def play_release_sound(self):
+		self.play_sound('sound/release.wav')
+
+	def play_collide_sound(self):
+		self.play_sound('sound/collide.wav')
+
+	def play_sound(self, filename):
+		if self.enable_sound:
+			sound = SoundLoader.load(filename=filename)
+			if not sound:
+				# unable to load this sound?
+				pass
+			else:
+				# sound loaded, let's play!
+				sound.play()
 
