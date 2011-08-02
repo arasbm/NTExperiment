@@ -47,12 +47,12 @@ class Container(ContainerBase):
 			"  grab  "
 			"""
 			if self.my_object.collide_point(touch.x-self.x, touch.y-self.y):
-				print 'object grabbed'
 				self.play_grab_sound()
 				# does not seem necessary
 				# self.my_object.dispatch('on_touch_down', touch)
 				self.object_moving = True
 				self.my_object.owner_id = hand_id
+				self.object_grabbed_event()
 				return True
 
 		# keeps x-location of touch, to use for sliding the workspace later
@@ -131,12 +131,13 @@ class Container(ContainerBase):
 			"""
 			if gesture_id == self.release_gesture:
 				self.object_moving = False
-				if play_sound:
-					self.play_release_sound()
+				self.object_released_event()
+				self.play_release_sound()
 				"""
 				"  collide  "
 				"""
 				if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
+					self.object_collide_event()
 					self.swap_object_target()
 					self.play_collide_sound()
 

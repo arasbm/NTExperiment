@@ -51,6 +51,7 @@ class Container(ContainerBase):
 			self.object_moving = True
 			self.my_object.owner_id = touch.ud
 			self.play_grab_sound()
+			self.object_grabbed_event()
 			return True
 		# calls same function in it's ancestor
 		# keeps x-location of touch, to use for sliding the workspace later
@@ -90,11 +91,13 @@ class Container(ContainerBase):
 			self.object_moving = False
 			self.play_release_sound()
 			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			self.object_released_event()
 			# if object is released on target, swap them and make a new target
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
 				"""
 				"  collide  "
 				"""
+				self.object_collide_event()
 				self.swap_object_target()
 				self.play_collide_sound()
 			else:

@@ -25,7 +25,7 @@ from kivy.logger import Logger
 
 from kivy.core.audio import Sound, SoundLoader
 
-from touchbase import Workspace, Object, Target
+from touchbase import Workspace, Object, Target, Trial
 
 class ContainerBase(Scatter):
 	# workspace may have an object and a target in it
@@ -68,6 +68,9 @@ class ContainerBase(Scatter):
 	# if application should play sounds
 	enable_sound = False
 
+	# saves current trial information
+	current_trial = None
+
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
@@ -86,6 +89,18 @@ class ContainerBase(Scatter):
 		# for now container will have a random object and target
 		self.create_random_object()
 		self.create_random_target()
+
+		self.current_trial = Trial()
+		self.update_trial_dimensions()
+
+	# updates object and target places in trial object
+	def update_trial_dimensions(self):
+		self.current_trial.object_x = self.my_object.x % self.single_width()
+		self.current_trial.object_y = self.my_object.y
+		self.current_trial.object_w = self.which_workspace(self.my_object.x)
+		self.current_trial.target_x = self.my_target.x % self.single_width()
+		self.current_trial.target_y = self.my_target.y
+		self.current_trial.target_w = self.which_workspace(self.my_target.x)
 
 	# returns a random value for size
 	def random_size(self):
@@ -177,10 +192,13 @@ class ContainerBase(Scatter):
 		anim.start(self)
 
 	def swap_object_target(self):
+		self.current_trial.log()
+		self.current_trial.reset()
 		self.my_object.x, self.my_object.y = self.my_target.x, self.my_target.y
 		self.my_object.width, self.my_object.height = self.my_target.width, self.my_target.height
 		self.my_object.draw()
 		self.create_random_target()
+		self.update_trial_dimensions()
 
 	def on_left_border (self, touch):
 		return (touch.x - self.x) % self.single_width() < self.border_size
@@ -206,4 +224,26 @@ class ContainerBase(Scatter):
 			else:
 				# sound loaded, let's play!
 				sound.play()
+
+	def object_grabbed_event(self):
+		print 'object grabbed',
+		if self.current_trial.state == 'initial':
+			self.current_trial.start_time = time.time()
+			self.current_trial.state = 'started'
+			print 'and trial started'
+		else:
+			print ''
+
+	def object_released_event(self):
+		print 'object released'
+		self.current_trial.release_count += 1
+
+	def object_collide_event(self):
+		print 'collide happened', 
+		if self.current_trial.state == 'started':
+			self.current_trial.end_time = time.time()
+			self.current_trial.state = 'ended'
+			print 'and trial ended'
+		else:
+			print 'but in an inapropriate state! state =', self.current_trial.state
 

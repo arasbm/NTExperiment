@@ -131,3 +131,39 @@ class Workspace(Scatter):
 
 	def on_touch_up (self, touch):
 		pass
+
+class Trial():
+	# start time is when user grabs the object for the first time (i.e. state is initial). state should be changed
+	# to started then
+	start_time = None
+	# end time is when user drops the object on target (collide happens). state should be then changed to ended
+	end_time = None
+	# number of releases happened (i.e. number of failures + 1)
+	release_count = 0
+	# object place
+	object_x, object_y, object_w = 0, 0, 0
+	# target place
+	target_x, target_y, target_w = 0, 0, 0
+	# workspace switches
+	ws_switch = 0
+	"""
+	Possible states: initial, started, ended
+	"""
+	state = 'initial'
+
+	def log(self):
+		if self.state != 'ended':
+			print 'alert!! trial being logged before going to finishing state'
+		print 'trial: object place = workspace', self.object_w, '(', self.object_x, ',', self.object_y, ')'
+		print 'trial: target place = workspace', self.target_w, '(', self.target_x, ',', self.target_y, ')'
+		print 'trial: time range =', self.start_time, 'to', self.end_time
+		print 'trial: duration =', (self.end_time - self.start_time)
+		print 'trial: number of releases =', self.release_count
+
+	def reset(self):
+		self.start_time, self.end_time = None, None
+		self.release_count = 0
+		self.state = 'initial'
+		self.object_x, self.object_y, self.object_w = 0, 0, 0
+		self.target_x, self.target_y, self.target_w = 0, 0, 0
+		self.ws_switch = 0
