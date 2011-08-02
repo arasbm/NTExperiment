@@ -88,6 +88,8 @@ class ContainerBase(Scatter):
 		self.add_widget(layout)
 		# for now container will have a random object and target
 		self.create_random_object()
+		self.my_object.x = self.my_object.x % self.single_width()
+		self.my_object.draw()
 		self.create_random_target()
 
 		self.current_trial = Trial()
@@ -111,10 +113,10 @@ class ContainerBase(Scatter):
 
 	# returns a random value with limit, considering margin
 	def random_x_dimension(self):
-		return int(random()*len(self.frames))*self.single_width() + self.border_size + self.margin + random() * (self.single_width() - 2*self.border_size - 2*self.margin)
+		return int(random()*len(self.frames))*self.single_width() + 2*self.border_size + 2*self.margin + random() * (self.single_width() - 4*self.border_size - 4*self.margin)
 
 	def random_y_dimension(self):
-		return self.border_size + random() * (self.height - 2*self.border_size)
+		return 2*self.border_size + random() * (self.height - 4*self.border_size)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
