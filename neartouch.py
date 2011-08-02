@@ -85,13 +85,17 @@ class Container(ContainerBase):
 			if self.initial_x > touch.x:
 				if abs(self.initial_x - touch.x) > self.slide_threshold:
 					current = current + 1
-				if current >= len(self.frames):
-					current = len(self.frames) - 1
+					if current >= len(self.frames):
+						current = len(self.frames) - 1
+					else:
+						self.workspace_slide_event()
 			else:
 				if abs(self.initial_x - touch.x) > self.slide_threshold:
 					current = current - 1
-				if current < 0:
-					current = 0
+					if current < 0:
+						current = 0
+					else:
+						self.workspace_slide_event()
 			self.slide(current)
 			self.initial_x = None
 		return False

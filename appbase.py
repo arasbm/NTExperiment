@@ -167,6 +167,7 @@ class ContainerBase(Scatter):
 		current = self.current_workspace()
 		if current < len(self.frames) - 1:
 			current += 1
+			self.workspace_slide_event()
 		self.slide(current)
 		self.sliding = True
 		if self.enable_border_slide:
@@ -182,6 +183,7 @@ class ContainerBase(Scatter):
 		current = self.current_workspace()
 		if current > 0:
 			current -= 1
+			self.workspace_slide_event()
 		self.slide(current)
 		self.sliding = True
 		if self.enable_border_slide:
@@ -247,3 +249,10 @@ class ContainerBase(Scatter):
 		else:
 			print 'but in an inapropriate state! state =', self.current_trial.state
 
+	def workspace_slide_event(self):
+		print 'sliding happened',
+		if self.current_trial.state == 'started':
+			self.current_trial.ws_switch += 1
+			print 'and counted'
+		else:
+			print 'but not counted'

@@ -150,15 +150,19 @@ class Trial():
 	Possible states: initial, started, ended
 	"""
 	state = 'initial'
+	# counter
+	trial_number = 0
 
 	def log(self):
 		if self.state != 'ended':
 			print 'alert!! trial being logged before going to finishing state'
-		print 'trial: object place = workspace', self.object_w, '(', self.object_x, ',', self.object_y, ')'
-		print 'trial: target place = workspace', self.target_w, '(', self.target_x, ',', self.target_y, ')'
+		print 'trial: number', self.trial_number
+		print 'trial: object place = workspace', self.object_w, '(', int(self.object_x), ',', int(self.object_y), ')'
+		print 'trial: target place = workspace', self.target_w, '(', int(self.target_x), ',', int(self.target_y), ')'
 		print 'trial: time range =', self.start_time, 'to', self.end_time
 		print 'trial: duration =', (self.end_time - self.start_time)
 		print 'trial: number of releases =', self.release_count
+		print 'trial: number of switches =', self.ws_switch
 
 	def reset(self):
 		self.start_time, self.end_time = None, None
@@ -167,3 +171,4 @@ class Trial():
 		self.object_x, self.object_y, self.object_w = 0, 0, 0
 		self.target_x, self.target_y, self.target_w = 0, 0, 0
 		self.ws_switch = 0
+		self.trial_number += 1

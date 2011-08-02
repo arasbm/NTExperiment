@@ -69,16 +69,21 @@ class Container(ContainerBase):
 		"""
 		if self.initial_x != None and (not self.object_moving or touch.ud != self.my_object.owner_id):
 			current = self.current_workspace()
+			# self.current_trial.ws_switch += 1
 			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
 				if self.initial_x > touch.x:
 					if abs(self.initial_x - touch.x) > self.slide_threshold:
 						current = current + 1
-					if current >= len(self.frames):
-						current = len(self.frames) - 1
+						if current >= len(self.frames):
+							current = len(self.frames) - 1
+						else:
+							self.workspace_slide_event()
 				else:
 					current = current
 					if abs(self.initial_x - touch.x) < self.slide_threshold:
 						current = current + 1
+					else:
+						self.workspace_slide_event()
 			self.slide(current)
 			self.initial_x = None
 		# if touch lefts from a target trigger that target
