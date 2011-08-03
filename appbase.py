@@ -210,6 +210,18 @@ class ContainerBase(Scatter):
 	def on_right_border (self, touch):
 		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
 
+
+	def draw (self):
+		layout = BoxLayout(orientation='horizontal')
+		for frame in self.frames:
+			frame.draw()
+			layout.add_widget(frame)
+		self.add_widget(layout)
+		self.my_object.draw()
+		self.add_widget(self.my_object)
+		self.my_target.draw()
+		self.add_widget(self.my_target)
+
 	def play_grab_sound(self):
 		self.play_sound('sound/grab.wav')
 
