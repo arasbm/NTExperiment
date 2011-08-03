@@ -30,7 +30,7 @@ from appbase import ContainerBase
 
 # stands for a set of workspaces
 class Container(ContainerBase):
-	def __init__(self, ws_count, width=900, height=600):
+	def __init__(self, ws_count, width=1920, height=1080):
 		# call parent
 		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
 	
