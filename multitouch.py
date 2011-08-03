@@ -39,7 +39,7 @@ class Container(ContainerBase):
 			self.enable_slide = True
 		else:
 			self.enable_border_slide = True
-		self.slide_threshold = 200
+		self.slide_threshold = 150
 		self.prevent_edge = False
 		# call parent
 		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
