@@ -79,7 +79,7 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if ('initial' in touch.ud) and touch.ud['initial'] != None and self.object_moving and hand_id != self.my_object.owner_id and self.x >= 0 and ((-1*self.x) % self.single_width() == 0):
+		if ('initial' in touch.ud) and touch.ud['initial'] != None and self.object_moving and hand_id != self.my_object.owner_id and self.x <= 0 and ((-1*self.x) % self.single_width() == 0):
 			print 'about to slide'
 			current = self.current_workspace()
 			if touch.ud['initial'] > touch.x:

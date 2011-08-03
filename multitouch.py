@@ -73,7 +73,7 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if ('initial' in touch.ud) and touch.ud['initial'] != None and (not self.object_moving or touch.uid != self.my_object.owner_id) and self.x >= 0 and ((-1*self.x) % self.single_width() == 0):
+		if ('initial' in touch.ud) and touch.ud['initial'] != None and (not self.object_moving or touch.uid != self.my_object.owner_id) and self.x <= 0 and ((-1*self.x) % self.single_width() == 0):
 			current = self.current_workspace()
 			# self.current_trial.ws_switch += 1
 			#if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
