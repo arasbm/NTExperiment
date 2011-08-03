@@ -95,7 +95,11 @@ class Container(ContainerBase):
 				self.stop_slide = True
 			self.object_moving = False
 			self.play_release_sound()
-			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			tx = touch.x
+			ty = touch.y
+			tx = self.push_out_border (tx, self.single_width())
+			ty = self.push_out_border (ty, self.height)
+			self.my_object.relocate(tx - self.x, ty - self.y)
 			self.object_released_event()
 			# if object is released on target, swap them and make a new target
 			if self.my_target.collide_point(touch.x-self.x, touch.y-self.y):
@@ -117,7 +121,11 @@ class Container(ContainerBase):
 
 	def on_touch_move (self, touch):
 		if self.object_moving and touch.ud == self.my_object.owner_id:
-			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			tx = touch.x
+			ty = touch.y
+			tx = self.push_out_border (tx, self.single_width())
+			ty = self.push_out_border (ty, self.height)
+			self.my_object.relocate(tx - self.x, ty - self.y)
 			"""
 			"  border slide  "
 			"""

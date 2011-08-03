@@ -108,7 +108,11 @@ class Container(ContainerBase):
 		gesture_id = touch.fid % self.hand_gesture_offset
 
 		if self.object_moving and hand_id == self.my_object.owner_id:
-			self.my_object.relocate(touch.x - self.x, touch.y - self.y)
+			tx = touch.x
+			ty = touch.y
+			tx = self.push_out_border (tx, self.single_width())
+			ty = self.push_out_border (ty, self.height)
+			self.my_object.relocate(tx - self.x, ty - self.y)
 			"""
 			"  border slide  "
 			"""

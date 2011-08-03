@@ -106,17 +106,17 @@ class ContainerBase(Scatter):
 
 	# returns a random value for size
 	def random_size(self):
-		base = 150
+		base = 200
 		step = 50
 		max_levels = 0
 		return base+step*int(max_levels*random())
 
 	# returns a random value with limit, considering margin
 	def random_x_dimension(self):
-		return int(random()*len(self.frames))*self.single_width() + 2*self.border_size + 2*self.margin + random() * (self.single_width() - 4*self.border_size - 4*self.margin)
+		return int(random()*len(self.frames))*self.single_width() + 4*self.border_size + 4*self.margin + random() * (self.single_width() - 8*self.border_size - 8*self.margin)
 
 	def random_y_dimension(self):
-		return 2*self.border_size + random() * (self.height - 4*self.border_size)
+		return 4*self.border_size + random() * (self.height - 8*self.border_size)
 
 	# function to create a random object, which user should drag/move to target
 	def create_random_object(self):
@@ -221,6 +221,14 @@ class ContainerBase(Scatter):
 		self.add_widget(self.my_object)
 		self.my_target.draw()
 		self.add_widget(self.my_target)
+
+	def push_out_border (self, value, maximum):
+		border = self.border_size * 3
+		if value < border:
+			value = border
+		if value > maximum - border:
+			value = maximum - border
+		return value
 
 	def play_grab_sound(self):
 		self.play_sound('sound/grab.wav')
