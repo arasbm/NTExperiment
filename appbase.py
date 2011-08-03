@@ -81,7 +81,7 @@ class ContainerBase(Scatter):
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
-		self.do_translation_x = self.enable_slide
+		self.do_translation_x = False
 		# boxlayout lets us put some workspaces beside eachother
 		layout = BoxLayout(orientation='horizontal')
 		self.frames = []
