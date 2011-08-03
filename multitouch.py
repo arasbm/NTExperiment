@@ -96,7 +96,7 @@ class Container(ContainerBase):
 		"""
 		"  release  "
 		"""
-		if self.object_moving and touch.uid == self.my_object.owner_id:
+		if self.object_moving and touch.uid == self.my_object.owner_id and ((-1*self.x) % self.single_width() == 0):
 			if self.sliding:
 				self.stop_slide = True
 			self.object_moving = False
