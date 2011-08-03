@@ -43,6 +43,8 @@ class Container(ContainerBase):
 		# if object touched call it's on_touch_down function and disable panning workspaces
 		# by returning True
 
+		print touch.ud
+
 		"""
 		"  grab  "
 		"""

@@ -66,7 +66,7 @@ class ContainerBase(Scatter):
 	hand_gesture_offset = 256
 
 	# if application should play sounds
-	enable_sound = True
+	enable_sound = False
 
 	# saves current trial information
 	current_trial = None
