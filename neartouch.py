@@ -163,7 +163,7 @@ class WorkspaceApp(App):
 	def build(self):
 		root = Widget()
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=3))
+		root.add_widget(Container(ws_count=7))
 		return root
 
 def log_time_action(action):

@@ -1,4 +1,5 @@
 import time
+import sys
 import kivy
 kivy.require('1.0.6')
 
@@ -28,13 +29,17 @@ from kivy.core.audio import Sound, SoundLoader
 from touchbase import Workspace, Object, Target
 from appbase import ContainerBase
 
+run_mode = 'slide'
+
 # stands for a set of workspaces
 class Container(ContainerBase):
 	def __init__(self, ws_count, width=1920, height=1080):
 		# some predefined variables differ from their default value for multitouch case
-		self.enable_slide = True
+		if run_mode == 'slide':
+			self.enable_slide = True
+		else:
+			self.enable_border_slide = True
 		self.slide_threshold = 200
-		self.enable_border_slide = True
 		self.prevent_edge = False
 		# call parent
 		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
@@ -161,4 +166,6 @@ def log_time_action(action):
 
 if __name__ in ('__main__', '__android__'):
 	log_time_action('start')
+	if len(sys.argv) > 1 and sys.argv[1] == 'border':
+		run_mode = 'border'
 	WorkspaceApp().run()
