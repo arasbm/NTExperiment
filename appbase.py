@@ -108,7 +108,7 @@ class ContainerBase(Scatter):
 	def random_size(self):
 		base = 150
 		step = 50
-		max_levels = 3
+		max_levels = 0
 		return base+step*int(max_levels*random())
 
 	# returns a random value with limit, considering margin
