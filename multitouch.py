@@ -85,11 +85,12 @@ class Container(ContainerBase):
 					else:
 						self.workspace_slide_event()
 			else:
-				current = current - 1
-				if abs(touch.ud['initial'] - touch.x) < self.slide_threshold:
-					current = current + 1
-				else:
-					self.workspace_slide_event()
+				if abs(touch.ud['initial'] - touch.x) > self.slide_threshold:
+					current = current - 1
+					if current < 0:
+						current = 0
+					else:
+						self.workspace_slide_event()
 			self.slide(current)
 			touch.ud['initial'] = None
 		# if touch lefts from a target trigger that target
