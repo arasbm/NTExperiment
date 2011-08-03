@@ -43,8 +43,6 @@ class Container(ContainerBase):
 		# if object touched call it's on_touch_down function and disable panning workspaces
 		# by returning True
 
-		print touch.uid
-
 		"""
 		"  grab  "
 		"""
@@ -52,7 +50,7 @@ class Container(ContainerBase):
 			self.my_object.dispatch('on_touch_down', touch)
 			# TODO maybe keep touch itself in my_object, instead of it's ud
 			self.object_moving = True
-			self.my_object.owner_id = touch.ud
+			self.my_object.owner_id = touch.uid
 			self.play_grab_sound()
 			self.object_grabbed_event()
 			return True
@@ -70,7 +68,7 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if self.initial_x != None and (not self.object_moving or touch.ud != self.my_object.owner_id):
+		if self.initial_x != None and (not self.object_moving or touch.uid != self.my_object.owner_id):
 			current = self.current_workspace()
 			# self.current_trial.ws_switch += 1
 			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
@@ -93,7 +91,7 @@ class Container(ContainerBase):
 		"""
 		"  release  "
 		"""
-		if self.object_moving and touch.ud == self.my_object.owner_id:
+		if self.object_moving and touch.uid == self.my_object.owner_id:
 			if self.sliding:
 				self.stop_slide = True
 			self.object_moving = False
@@ -123,7 +121,7 @@ class Container(ContainerBase):
 		return False
 
 	def on_touch_move (self, touch):
-		if self.object_moving and touch.ud == self.my_object.owner_id:
+		if self.object_moving and touch.uid == self.my_object.owner_id:
 			tx = touch.x
 			ty = touch.y
 			tx = self.push_out_border (tx, self.single_width())
@@ -148,7 +146,7 @@ class Container(ContainerBase):
 				self.my_target.highlight(True)
 			else:
 				self.my_target.highlight(False)
-		if not self.object_moving or touch.ud != self.my_object.owner_id:
+		if not self.object_moving or touch.uid != self.my_object.owner_id:
 			Scatter.on_touch_move(self, touch)
 
 class WorkspaceApp(App):
