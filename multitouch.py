@@ -65,7 +65,7 @@ class Container(ContainerBase):
 		"""
 		"  sense sliding  "
 		"""
-		self.initial_x = touch.x
+		touch.ud['initial'] = touch.x
 
 	def on_touch_up (self, touch):
 		# calls same function in it's ancestor, and slides the workspace
@@ -73,12 +73,12 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if self.initial_x != None and (not self.object_moving or touch.uid != self.my_object.owner_id):
+		if touch.ud['initial'] != None and (not self.object_moving or touch.uid != self.my_object.owner_id):
 			current = self.current_workspace()
 			# self.current_trial.ws_switch += 1
 			if self.x <= 0 and (-1*self.x) % self.single_width() != 0:
-				if self.initial_x > touch.x:
-					if abs(self.initial_x - touch.x) > self.slide_threshold:
+				if touch.ud['initial'] > touch.x:
+					if abs(touch.ud['initial'] - touch.x) > self.slide_threshold:
 						current = current + 1
 						if current >= len(self.frames):
 							current = len(self.frames) - 1
@@ -86,12 +86,12 @@ class Container(ContainerBase):
 							self.workspace_slide_event()
 				else:
 					current = current
-					if abs(self.initial_x - touch.x) < self.slide_threshold:
+					if abs(touch.ud['initial'] - touch.x) < self.slide_threshold:
 						current = current + 1
 					else:
 						self.workspace_slide_event()
 			self.slide(current)
-			self.initial_x = None
+			touch.ud['initial'] = None
 		# if touch lefts from a target trigger that target
 		"""
 		"  release  "

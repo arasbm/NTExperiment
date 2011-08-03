@@ -60,7 +60,7 @@ class Container(ContainerBase):
 		"  sense sliding  "
 		"""
 		if self.object_moving and hand_id != self.my_object.owner_id:
-			self.initial_x = touch.x
+			touch.ud['initial'] = touch.x
 			print 'started sliding'
 
 		# calls same function in it's ancestor
@@ -79,25 +79,25 @@ class Container(ContainerBase):
 		"""
 		"  starts sliding  "
 		"""
-		if self.initial_x != None and self.object_moving and hand_id != self.my_object.owner_id:
+		if touch.ud['initial'] != None and self.object_moving and hand_id != self.my_object.owner_id:
 			print 'about to slide'
 			current = self.current_workspace()
-			if self.initial_x > touch.x:
-				if abs(self.initial_x - touch.x) > self.slide_threshold:
+			if touch.ud['initial'] > touch.x:
+				if abs(touch.ud['initial'] - touch.x) > self.slide_threshold:
 					current = current + 1
 					if current >= len(self.frames):
 						current = len(self.frames) - 1
 					else:
 						self.workspace_slide_event()
 			else:
-				if abs(self.initial_x - touch.x) > self.slide_threshold:
+				if abs(touch.ud['initial'] - touch.x) > self.slide_threshold:
 					current = current - 1
 					if current < 0:
 						current = 0
 					else:
 						self.workspace_slide_event()
 			self.slide(current)
-			self.initial_x = None
+			touch.ud['initial'] = None
 		return False
 
 	def on_touch_move (self, touch):
