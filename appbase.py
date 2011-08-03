@@ -1,4 +1,5 @@
 import time
+import sys
 import kivy
 kivy.require('1.0.6')
 
@@ -73,6 +74,9 @@ class ContainerBase(Scatter):
 
 	# prevent object from going to edges
 	prevent_edge = True
+
+	# max number of trials
+	max_trial = 100
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
@@ -201,6 +205,8 @@ class ContainerBase(Scatter):
 	def swap_object_target(self):
 		self.current_trial.log()
 		self.current_trial.reset()
+		if self.current_trial.trial_number == self.max_trial:
+			sys.exit(0)
 		self.my_object.x, self.my_object.y = self.my_target.x, self.my_target.y
 		self.my_object.width, self.my_object.height = self.my_target.width, self.my_target.height
 		self.my_object.draw()

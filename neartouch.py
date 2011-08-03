@@ -137,7 +137,7 @@ class Container(ContainerBase):
 			"""
 			"  release  "
 			"""
-			if gesture_id == self.release_gesture:
+			if gesture_id == self.release_gesture and ((-1*self.x) % self.single_width() == 0):
 				self.object_moving = False
 				self.object_released_event()
 				self.play_release_sound()
