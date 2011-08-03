@@ -71,6 +71,9 @@ class ContainerBase(Scatter):
 	# saves current trial information
 	current_trial = None
 
+	# prevent object from going to edges
+	prevent_edge = True
+
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
 		Scatter.__init__(self, size=(width*ws_count, height), pos=(0, 0), do_scale=False, do_translation_y=False, do_rotation= False)
@@ -223,6 +226,8 @@ class ContainerBase(Scatter):
 		self.add_widget(self.my_target)
 
 	def push_out_border (self, value, maximum):
+		if not self.prevent_edge:
+			return value
 		border = self.border_size * 3
 		if value < border:
 			value = border
