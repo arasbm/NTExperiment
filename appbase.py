@@ -76,7 +76,7 @@ class ContainerBase(Scatter):
 	prevent_edge = True
 
 	# max number of trials
-	max_trial = 50
+	max_trial = 20
 
 	def __init__(self, ws_count, width=900, height=600):
 		# container is a scatter that just can be panned in x (horizontal) direction
