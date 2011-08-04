@@ -172,6 +172,7 @@ class WorkspaceApp(App):
 			self.container.go_to_object()
 		if (code == 120):
 			print 'trial: experiment started'
+			self.container.current_trial.reset()
 			self.container.current_trial.trial_number = 0
 
 	def build(self):
