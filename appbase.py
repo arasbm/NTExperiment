@@ -55,7 +55,7 @@ class ContainerBase(Scatter):
 	# if user returns the object from border, so even if Timer is triggered, it shouldn't slide the workspace
 	stop_slide = False
 	# border size
-	border_size = 200
+	border_size = 400
 	# threshold time that user should keep the object in border to start border sliding
 	border_delay = 0.7
 
