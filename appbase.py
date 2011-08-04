@@ -291,3 +291,6 @@ class ContainerBase(Scatter):
 			print 'and counted'
 		else:
 			print 'but not counted'
+
+	def on_key_down(self, key):
+		print key
