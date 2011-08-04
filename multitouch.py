@@ -33,7 +33,7 @@ run_mode = 'slide'
 
 # stands for a set of workspaces
 class Container(ContainerBase):
-	def __init__(self, ws_count, width=1500, height=800):
+	def __init__(self, ws_count, width=1620, height=1050):
 		# some predefined variables differ from their default value for multitouch case
 		if run_mode == 'slide':
 			self.enable_slide = True
