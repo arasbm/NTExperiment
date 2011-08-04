@@ -118,9 +118,9 @@ class Workspace(Scatter):
 		self.canvas.add(Rectangle(pos=(self.margin, self.margin), size=(self.w-2*self.margin, self.h-2*self.margin)))
 		self.canvas.add(self.direction_color)
 		if self.right_border:
-			self.canvas.add(Rectangle(pos=(self.w-self.border_size, self.margin), size=(self.border_size, self.h-2*self.margin)))
+			self.canvas.add(Rectangle(pos=(self.w-2*self.border_size, self.margin), size=(self.border_size, self.h-2*self.margin)))
 		if self.left_border:
-			self.canvas.add(Rectangle(pos=(0, self.margin), size=(self.border_size, self.h-2*self.margin)))
+			self.canvas.add(Rectangle(pos=(self.border_size, self.margin), size=(self.border_size, self.h-2*self.margin)))
 
 	def on_touch_down (self, touch):
 		# if panning is explicitly disabled (mostly happens when we have only one workspace)

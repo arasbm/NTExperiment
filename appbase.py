@@ -214,10 +214,12 @@ class ContainerBase(Scatter):
 		self.update_trial_dimensions()
 
 	def on_left_border (self, touch):
-		return (touch.x - self.x) % self.single_width() < self.border_size
+		x = (touch.x - self.x) % self.single_width()
+		return x < 2*self.border_size
 
 	def on_right_border (self, touch):
-		return (touch.x - self.x) % self.single_width() > self.single_width() - self.border_size
+		x = (touch.x - self.x) % self.single_width()
+		return x > self.single_width() - 2*self.border_size
 
 
 	def draw (self):
