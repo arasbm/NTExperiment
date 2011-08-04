@@ -172,7 +172,7 @@ class WorkspaceApp(App):
 			self.container.go_to_object()
 		if (code == 120):
 			print 'trial: experiment started'
-			container.current_trial.trial_number = 0
+			self.container.current_trial.trial_number = 0
 
 	def build(self):
 		Window.bind(on_key_down=self.on_key_down)
