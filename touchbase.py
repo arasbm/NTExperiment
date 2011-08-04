@@ -94,10 +94,10 @@ class Workspace(Scatter):
 	# if workspace is colored inside, there's an uncolored margin around it.
 	margin = 10
 	# color of background
-	background = Color(0.8,0.8,0.8, 0.8)
-	direction_color = Color (1,1,0)
+	background = Color(0.3,0.3,0.3)
+	direction_color = Color (1, 1, 0, 0.5)
 	# border size
-	border_size = 100
+	border_size = 200
 
 	right_border = False
 	left_border = False
