@@ -97,7 +97,7 @@ class Workspace(Scatter):
 	background = Color(0.3,0.3,0.3)
 	direction_color = Color (1, 1, 0, 0.5)
 	# border size
-	border_size = 200
+	border_size = 100
 
 	right_border = False
 	left_border = False
