@@ -57,7 +57,7 @@ class ContainerBase(Scatter):
 	# border size
 	border_size = 200
 	# threshold time that user should keep the object in border to start border sliding
-	border_delay = 0.7
+	border_delay = 0.5
 
 	# gesture codes
 	grab_gesture = 1
