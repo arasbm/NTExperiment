@@ -24,6 +24,7 @@ from kivy.graphics import Color, Ellipse, Rectangle
 from kivy.logger import Logger
 
 from kivy.core.audio import Sound, SoundLoader
+from kivy.core.window import Window
 
 from touchbase import Workspace, Object, Target
 from appbase import ContainerBase
