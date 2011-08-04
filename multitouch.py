@@ -97,9 +97,9 @@ class Container(ContainerBase):
 		"""
 		"  release  "
 		"""
-		if self.object_moving and touch.uid == self.my_object.owner_id and ((-1*self.x) % self.single_width() == 0):
-			if self.sliding:
+		if self.sliding and self.object_moving and touch.uid == self.my_object.owner_id:
 				self.stop_slide = True
+		if self.object_moving and touch.uid == self.my_object.owner_id and ((-1*self.x) % self.single_width() == 0):
 			self.object_moving = False
 			self.play_release_sound()
 			tx = touch.x
