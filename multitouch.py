@@ -33,7 +33,7 @@ run_mode = 'slide'
 
 # stands for a set of workspaces
 class Container(ContainerBase):
-	def __init__(self, ws_count, width=1620, height=1050):
+	def __init__(self, ws_count, width=1620, height=1080):
 		# some predefined variables differ from their default value for multitouch case
 		if run_mode == 'slide':
 			self.enable_slide = True
@@ -167,6 +167,7 @@ def log_time_action(action):
 
 if __name__ in ('__main__', '__android__'):
 	log_time_action('start')
-	if len(sys.argv) > 1 and sys.argv[1] == 'border':
-		run_mode = 'border'
+	for argvalue in sys.argv:
+		if argvalue == 'border':
+			run_mode = 'border'
 	WorkspaceApp().run()
