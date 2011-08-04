@@ -25,6 +25,7 @@ from kivy.graphics import Color, Ellipse, Rectangle
 from kivy.logger import Logger
 
 from kivy.core.audio import Sound, SoundLoader
+from kivy.core.window import Window
 
 from touchbase import Workspace, Object, Target
 from appbase import ContainerBase
@@ -156,10 +157,18 @@ class Container(ContainerBase):
 			Scatter.on_touch_move(self, touch)
 
 class WorkspaceApp(App):
+	container = None
+
+	def on_key_down(self, instance, code, *largs):
+		if (code == 101):
+			self.container.go_to_object()
+
 	def build(self):
+		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
+		self.container = Container(ws_count=7)
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=7))
+		root.add_widget(self.container)
 		return root
 
 def log_time_action(action):

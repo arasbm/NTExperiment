@@ -292,5 +292,6 @@ class ContainerBase(Scatter):
 		else:
 			print 'but not counted'
 
-	def on_key_down(self, key):
-		print key
+	def go_to_object (self):
+		ws = self.which_workspace(self.my_object.x)
+		self.slide(ws)
