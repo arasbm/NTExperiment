@@ -169,6 +169,9 @@ class WorkspaceApp(App):
 			print 'exit at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
 		if (code == 101):
 			self.container.go_to_object()
+		if (code == 120):
+			print 'trial: experiment started'
+			container.current_trial.trial_number = 0
 
 	def build(self):
 		Window.bind(on_key_down=self.on_key_down)
