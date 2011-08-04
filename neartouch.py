@@ -170,6 +170,7 @@ class WorkspaceApp(App):
 
 	def build(self):
 		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
+		print 'mode : bimanual neartouch'
 		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
 		self.container = Container(ws_count=7)
