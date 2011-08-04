@@ -160,10 +160,21 @@ class Container(ContainerBase):
 			self.canvas.add(Ellipse(pos=(touch.x-self.x, touch.y-self.y), size=(30,30)))
 
 class WorkspaceApp(App):
+	container = None
+
+	def on_key_down(self, instance, code, *largs):
+		if (code == 27):
+			print 'exit at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
+		if (code == 101):
+			self.container.go_to_object()
+
 	def build(self):
+		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
+		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
+		self.container = Container(ws_count=7)
 		# here we add an instance of container to the window, ws_count shows number of workspaces we need
-		root.add_widget(Container(ws_count=7))
+		root.add_widget(self.container)
 		return root
 
 def log_time_action(action):

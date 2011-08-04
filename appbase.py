@@ -206,6 +206,7 @@ class ContainerBase(Scatter):
 		self.current_trial.log()
 		self.current_trial.reset()
 		if self.current_trial.trial_number == self.max_trial:
+			print 'exit at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
 			sys.exit(0)
 		self.my_object.x, self.my_object.y = self.my_target.x, self.my_target.y
 		self.my_object.width, self.my_object.height = self.my_target.width, self.my_target.height

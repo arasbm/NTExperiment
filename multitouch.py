@@ -160,10 +160,13 @@ class WorkspaceApp(App):
 	container = None
 
 	def on_key_down(self, instance, code, *largs):
+		if (code == 27):
+			print 'exit at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
 		if (code == 101):
 			self.container.go_to_object()
 
 	def build(self):
+		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
 		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
 		self.container = Container(ws_count=7)
