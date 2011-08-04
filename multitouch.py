@@ -44,6 +44,11 @@ class Container(ContainerBase):
 		self.prevent_edge = False
 		# call parent
 		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
+		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
+		if run_mode == 'border':
+			print 'mode : hold and drag'
+		else:
+			print 'mode : bimanual multitouch'
 	
 	def on_touch_down (self, touch):
 		# if object touched call it's on_touch_down function and disable panning workspaces
@@ -166,11 +171,6 @@ class WorkspaceApp(App):
 			self.container.go_to_object()
 
 	def build(self):
-		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
-		if run_mode == 'border':
-			print 'mode : hold and drag'
-		else:
-			print 'mode : bimanual multitouch'
 		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
 		self.container = Container(ws_count=7)

@@ -33,6 +33,8 @@ class Container(ContainerBase):
 	def __init__(self, ws_count, width=1920, height=1080):
 		# call parent
 		ContainerBase.__init__(self, ws_count=ws_count, width=width, height=height)
+		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
+		print 'mode : bimanual neartouch'
 	
 	def on_touch_down (self, touch):
 		if not 'markerid' in touch.profile:
@@ -169,8 +171,6 @@ class WorkspaceApp(App):
 			self.container.go_to_object()
 
 	def build(self):
-		print 'start at', time.strftime('%H:%M:%S %y/%m/%d', time.localtime())
-		print 'mode : bimanual neartouch'
 		Window.bind(on_key_down=self.on_key_down)
 		root = Widget()
 		self.container = Container(ws_count=7)
