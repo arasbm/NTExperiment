@@ -12,7 +12,9 @@ class TestApp(App):
     def build(self):
         scatter = Scatter()
         object_red = Image(source='img/ball_red.png')
+	object2 = Image(source='img/ball_grey.png', color=(0.4,0.2,0.3,0.7), size=(50,50), pos=(200,100))
         scatter.add_widget(object_red)
+	scatter.add_widget(object2)
         return scatter
 
 if __name__ in ('__android__', '__main__'):
