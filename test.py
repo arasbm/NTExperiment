@@ -29,16 +29,24 @@ target_color = Color(0,0,0.7, 0.5)
 class Object(Widget):
     def __init__(self):
         Widget.__init__(self)	
-        self.img = Image(source='img/particle.png', pos_hint=(10,10), color=(0.7,0.5,0.3,0.9), size=(300,300))
+        self.img = Image(source='img/folder_grey.png', pos_hint=(10,10), color=(0.7,0.5,0.3,0.9), size=(300,300))
         self.add_widget(self.img)
         #self.size=(50,50)
         #self.pos=(250,300)
     
     def move(self):
-        self.img.pos=(round(600*random()), round(500*random()))
+        self.img.pos=(100+round(1400*random()), 100+round(700*random()))
         #self.img.pos_hint=(10,10)
 
+    def set_color(self, color):
+        self.img.color=color
+
+
 class Root(Widget):
+    # gesture codes
+    grab_gesture = 1
+    release_gesture = 2
+    hand_gesture_offset = 256
     grab_obj = Object()
     release_obj = Object()
 		
@@ -48,11 +56,23 @@ class Root(Widget):
         self.add_widget(self.release_obj)
         
     def on_touch_down(self, touch):
-        self.next_trial()
+        if not 'markerid' in touch.profile:
+            self.next_trial()
+            return
+	hand_id = int(touch.fid / self.hand_gesture_offset)
+	gesture_id = touch.fid % self.hand_gesture_offset
+        if gesture_id == self.grab_gesture:
+            self.grab_obj.set_color((0.7,0.5,0.3,0.3))
+            self.release_obj.set_color(((0.6,0.2,0.4,0.9)))
+        if gesture_id == self.release_gesture:
+            self.next_trial()
+            
         
     def next_trial(self):
         self.grab_obj.move()
+        self.grab_obj.set_color((0.7,0.5,0.3,0.9))
         self.release_obj.move()
+        self.release_obj.set_color((0.6,0.2,0.4,0.4))
         while self.grab_obj.img.collide_widget(self.release_obj.img):
             self.grab_obj.move()
             self.release_obj.move()
