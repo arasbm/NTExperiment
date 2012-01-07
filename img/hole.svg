@@ -111,7 +111,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -122,13 +122,13 @@
      transform="translate(0,-924.35922)">
     <path
        sodipodi:type="arc"
-       style="fill:url(#radialGradient3765);fill-opacity:1.0;stroke:url(#linearGradient3953);stroke-width:14.17050552000000074;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none"
+       style="fill:url(#radialGradient3765);fill-opacity:1;stroke:url(#linearGradient3953);stroke-width:14.17050552;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none"
        id="path2985"
        sodipodi:cx="68.571426"
        sodipodi:cy="66.647896"
        sodipodi:rx="142.85715"
        sodipodi:ry="142.85715"
        d="m 211.42857,66.647896 a 142.85715,142.85715 0 1 1 -285.714291,0 142.85715,142.85715 0 1 1 285.714291,0 z"
-       transform="matrix(-0.79101371,0,0,0.77006047,64.014396,884.17921)" />
+       transform="matrix(-1.0003841,0,0,1.0003841,109.83946,834.36707)" />
   </g>
 </svg>
